@@ -1,14 +1,19 @@
 /**
  * PulseGuard Risk Score API
  * -----------------------------------------
- * GET /api/risk-score?token=<coingecko-id-or-symbol>
+ * GET /api/risk-score?token=<id>
+ *   -> single token risk assessment, including an AI-generated insight
  *
- * Returns a structured risk assessment for any token, combining
- * live market data with an AI-generated trader insight.
+ * GET /api/risk-score?tokens=<id1>,<id2>,...
+ *   -> batch risk assessment for up to 10 tokens at once.
+ *      Batch responses use a rule-based insight (no AI call per token)
+ *      to keep response times fast and conserve AI credits. For a full
+ *      AI-generated insight, query a single token instead.
  *
- * Example: /api/risk-score?token=solana
+ * `<id>` can be a CoinGecko ID (e.g. "solana"), or a name/symbol
+ * PulseGuard searches for the closest match if an exact ID isn't found.
  *
- * Response shape:
+ * Single response shape:
  * {
  *   token: { name, symbol, image },
  *   price: number,
@@ -18,39 +23,87 @@
  *   breakdown: { volatility, liquidity, momentum },
  *   ai_insight: string
  * }
+ *
+ * Batch response shape:
+ * { results: [ <single response shape>, ... ] }
+ *
+ * No API key required. CORS is open (Access-Control-Allow-Origin: *)
+ * so any agent or app can call this directly.
  */
 
 export default async function handler(req, res) {
-  const token = (req.query.token || '').trim();
-  if (!token) {
-    return res.status(400).json({ error: 'Missing required query parameter: token' });
+  res.setHeader('Access-Control-Allow-Origin', '*');
+
+  const { token, tokens } = req.query;
+
+  // --- Batch mode ---
+  if (tokens) {
+    const ids = tokens.split(',').map(t => t.trim()).filter(Boolean).slice(0, 10);
+    if (ids.length === 0) {
+      return res.status(400).json({ error: 'No valid tokens provided' });
+    }
+
+    const results = await Promise.all(ids.map(async (id) => {
+      try {
+        const marketData = await fetchTokenData(id);
+        const risk = calculateRisk(marketData.market_data);
+        return formatResult(marketData, risk, ruleBasedSummary(marketData, risk));
+      } catch (e) {
+        return { token: { name: id }, error: e.message || 'Token not found' };
+      }
+    }));
+
+    await incrementUsageCounter();
+    return res.status(200).json({ results });
+  }
+
+  // --- Single token mode ---
+  if (!token || !token.trim()) {
+    return res.status(400).json({ error: 'Missing required query parameter: token (or use "tokens" for batch)' });
   }
 
   try {
-    const marketData = await fetchTokenData(token);
+    const marketData = await fetchTokenData(token.trim());
     const risk = calculateRisk(marketData.market_data);
     const insight = await getAIInsight(marketData, risk);
-
-    return res.status(200).json({
-      token: {
-        name: marketData.name,
-        symbol: marketData.symbol,
-        image: marketData.image?.small || marketData.image?.thumb || null
-      },
-      price: marketData.market_data.current_price.usd,
-      change_24h: marketData.market_data.price_change_percentage_24h,
-      risk_score: risk.total,
-      risk_level: risk.level,
-      breakdown: risk.breakdown,
-      ai_insight: insight
-    });
+    await incrementUsageCounter();
+    return res.status(200).json(formatResult(marketData, risk, insight));
   } catch (err) {
     return res.status(404).json({ error: err.message || 'Token not found' });
   }
 }
 
+function formatResult(marketData, risk, insight) {
+  return {
+    token: {
+      name: marketData.name,
+      symbol: marketData.symbol,
+      image: marketData.image?.small || marketData.image?.thumb || null
+    },
+    price: marketData.market_data.current_price.usd,
+    change_24h: marketData.market_data.price_change_percentage_24h,
+    risk_score: risk.total,
+    risk_level: risk.level,
+    breakdown: risk.breakdown,
+    ai_insight: insight
+  };
+}
+
 // ---------------------------------------------------------
-// 1. Market data — CoinGecko (no API key required)
+// Usage tracking - free, no-auth counter via CountAPI.
+// Powers the "X risk checks performed" stat on the dashboard
+// (see /api/stats). Failures here never break the main response.
+// ---------------------------------------------------------
+async function incrementUsageCounter() {
+  try {
+    await fetch('https://api.countapi.xyz/hit/sketchify-pulseguard/risk-checks');
+  } catch (e) {
+    // non-critical
+  }
+}
+
+// ---------------------------------------------------------
+// 1. Market data - CoinGecko (no API key required)
 // ---------------------------------------------------------
 async function fetchTokenData(query) {
   const slug = query.toLowerCase().replace(/\s+/g, '-');
@@ -71,7 +124,7 @@ async function fetchTokenData(query) {
 }
 
 // ---------------------------------------------------------
-// 2. Risk Engine — turns raw market data into a 0-100 score
+// 2. Risk Engine - turns raw market data into a 0-100 score
 // ---------------------------------------------------------
 function calculateRisk(m) {
   const change = m.price_change_percentage_24h ?? 0;
@@ -119,7 +172,7 @@ function calculateRisk(m) {
 }
 
 // ---------------------------------------------------------
-// 3. AI Insight — Qwen (via Alibaba Cloud DashScope)
+// 3. AI Insight - Qwen (via Alibaba Cloud DashScope)
 // Falls back to a rule-based summary if no API key is set,
 // so the project still works during local development.
 // ---------------------------------------------------------
