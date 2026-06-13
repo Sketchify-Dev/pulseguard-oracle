@@ -107,11 +107,25 @@
     border-radius: 50%;
     background: #1f1f29;
     display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .token-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .token-icon-fallback {
     font-family: 'Barlow Condensed', sans-serif;
     font-weight: 700;
     font-size: 14px;
     color: var(--accent);
-    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
   }
   .token-name { font-size: 17px; font-weight: 500; }
   .token-symbol { font-size: 12px; color: var(--text-dim); text-transform: uppercase; }
@@ -266,7 +280,7 @@
 <body>
 
   <h1>PulseGuard</h1>
-  <div class="subtitle">AI-powered risk scoring for Solana ecosystem tokens</div>
+  <div class="subtitle">AI-powered risk scoring for any crypto token</div>
 
   <div class="pills">
     <span class="pill" onclick="run('solana')">SOL</span>
@@ -410,10 +424,15 @@ async function run(presetId) {
       ? '$' + price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
       : '$' + price.toFixed(6);
 
+    const imageUrl = data.image?.small || data.image?.thumb || '';
+    const iconHTML = imageUrl
+      ? `<img src="${imageUrl}" alt="${data.symbol}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"><span class="token-icon-fallback" style="display:none">${initials.slice(0,3)}</span>`
+      : `<span class="token-icon-fallback" style="display:flex">${initials.slice(0,3)}</span>`;
+
     out.innerHTML = `
       <div class="card">
         <div class="token-header">
-          <div class="token-icon">${initials.slice(0,3)}</div>
+          <div class="token-icon">${iconHTML}</div>
           <div>
             <div class="token-name">${data.name}</div>
             <div class="token-symbol">${data.symbol}</div>
