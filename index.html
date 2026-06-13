@@ -338,7 +338,7 @@ async function fetchTokenData(query) {
 }
 
 // ---------------------------------------------------------
-// STEP 2: The Risk Engine — turns raw market data into a score
+// STEP 2: The Risk Engine - turns raw market data into a score
 // ---------------------------------------------------------
 function calculateRisk(m) {
   const change = m.price_change_percentage_24h ?? 0;
@@ -512,6 +512,23 @@ async function run(presetId) {
     out.innerHTML = `<div class="card"><div class="error">${e.message || 'Something went wrong'}. Try a different token.</div></div>`;
   }
 }
+
+// ---------------------------------------------------------
+// Live usage counter - fetched once on page load
+// ---------------------------------------------------------
+(async function loadStats() {
+  try {
+    const res = await fetch('/api/stats');
+    const data = await res.json();
+    if (data.total_checks != null) {
+      const badge = document.getElementById('statsBadge');
+      badge.textContent = `🔥 ${data.total_checks.toLocaleString()} risk checks performed`;
+      badge.classList.add('show');
+    }
+  } catch (e) {
+    // non-critical, fail silently
+  }
+})();
 </script>
 </body>
 </html>
