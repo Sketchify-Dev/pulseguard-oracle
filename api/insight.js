@@ -7,7 +7,7 @@
 //
 // Why a separate backend function?
 // If we called Qwen directly from the browser, our API key
-// would be visible to anyone who views the page source —
+// would be visible to anyone who views the page source
 // and they could use up our credits. Keeping the call here
 // keeps the key private.
 
@@ -35,9 +35,9 @@ Token: ${name} (${symbol})
 Current price: $${price}
 24h change: ${change24h}%
 Risk score: ${riskScore}/100 (${riskLevel})
-Breakdown — Volatility: ${breakdown.volatility}/40, Liquidity risk: ${breakdown.liquidity}/30, Momentum: ${breakdown.momentum}/30
+Breakdown - Volatility: ${breakdown.volatility}/40, Liquidity risk: ${breakdown.liquidity}/30, Momentum: ${breakdown.momentum}/30
 
-Write 2-3 sentences explaining what this risk profile means for a trader right now. Be specific, confident, and avoid generic disclaimers. Do not repeat the raw numbers back verbatim — interpret them.`;
+Write 2-3 sentences explaining what this risk profile means for a trader right now. Be specific, confident, and avoid generic disclaimers. Do not repeat the raw numbers back verbatim, interpret them.`;
 
   try {
     const response = await fetch('https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions', {
@@ -66,9 +66,9 @@ Write 2-3 sentences explaining what this risk profile means for a trader right n
       source: text ? 'qwen' : 'fallback'
     });
   } catch (err) {
-    // Never let an AI hiccup break the dashboard — fall back gracefully
+    // Never let an AI hiccup break the dashboard fall back gracefully
     return res.status(200).json({
-      insight: fallback || `${riskLevel} — based on volatility, liquidity, and momentum analysis.`,
+      insight: fallback || `${riskLevel} - based on volatility, liquidity, and momentum analysis.`,
       source: 'fallback',
       error: err.message
     });
