@@ -24,7 +24,7 @@ export default async function handler(req, res) {
   // to the rule-based summary instead of breaking the app.
   if (!apiKey) {
     return res.status(200).json({
-      insight: fallback || `${riskLevel} — based on volatility, liquidity, and momentum analysis.`,
+      insight: fallback || `${riskLevel} - based on volatility, liquidity, and momentum analysis.`,
       source: 'fallback'
     });
   }
@@ -63,12 +63,13 @@ Write 2-3 sentences explaining what this risk profile means for a trader right n
 
     return res.status(200).json({
       insight: text || fallback || 'No insight generated.',
-      source: text ? 'qwen' : 'fallback'
+      source: text ? 'qwen' : 'fallback',
+      debug: !text ? data : undefined
     });
   } catch (err) {
-    // Never let an AI hiccup break the dashboard fall back gracefully
+    // Never let an AI hiccup break the dashboard, fall back gracefully
     return res.status(200).json({
-      insight: fallback || `${riskLevel} - based on volatility, liquidity, and momentum analysis.`,
+      insight: fallback || `${riskLevel} — based on volatility, liquidity, and momentum analysis.`,
       source: 'fallback',
       error: err.message
     });
