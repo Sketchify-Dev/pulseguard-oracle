@@ -35,7 +35,7 @@ Available both as:
 
 ### `GET /api/risk-score?token=<id>`
 
-Returns a full risk assessment for any token. `<id>` can be a CoinGecko ID (e.g. `solana`), or a name/symbol — PulseGuard searches for the closest match if an exact ID isn't found.
+Returns a full risk assessment for any token. `<id>` can be a CoinGecko ID (e.g. `solana`), or a name/symbol. PulseGuard searches for the closest match if an exact ID isn't found.
 
 **Example request:**
 GET https://pulseguard-two.vercel.app/api/risk-score?token=solana
@@ -61,7 +61,7 @@ No API key required to call this endpoint, it's free and open for any agent or a
 
 ## Tech Stack
 
-- **Frontend:** Vanilla HTML/CSS/JS — no framework, zero build step, fast load
+- **Frontend:** Vanilla HTML/CSS/JS - no framework, zero build step, fast load
 - **Backend:** Vercel Serverless Functions (Node.js, ES modules)
 - **Market data:** [CoinGecko API](https://www.coingecko.com/en/api) (free, no key required)
 - **AI insights:** [Qwen](https://qwenlm.github.io/) via Alibaba Cloud DashScope (Bitget AI Hackathon credits)
