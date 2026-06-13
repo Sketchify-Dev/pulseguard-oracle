@@ -74,6 +74,7 @@ export default async function handler(req, res) {
 }
 
 function formatResult(marketData, risk, insight) {
+  const colorMap = { Low: '#22c55e', Medium: '#eab308', High: '#ef4444' };
   return {
     token: {
       name: marketData.name,
@@ -84,6 +85,7 @@ function formatResult(marketData, risk, insight) {
     change_24h: marketData.market_data.price_change_percentage_24h,
     risk_score: risk.total,
     risk_level: risk.level,
+    risk_color: colorMap[risk.level] || '#9aa0ab',
     breakdown: risk.breakdown,
     ai_insight: insight
   };
