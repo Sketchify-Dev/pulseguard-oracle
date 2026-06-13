@@ -10,7 +10,7 @@
  *
  * Response shape:
  * {
- *   token: { name, symbol },
+ *   token: { name, symbol, image },
  *   price: number,
  *   change_24h: number,
  *   risk_score: number,        // 0-100
@@ -32,7 +32,11 @@ export default async function handler(req, res) {
     const insight = await getAIInsight(marketData, risk);
 
     return res.status(200).json({
-      token: { name: marketData.name, symbol: marketData.symbol },
+      token: {
+        name: marketData.name,
+        symbol: marketData.symbol,
+        image: marketData.image?.small || marketData.image?.thumb || null
+      },
       price: marketData.market_data.current_price.usd,
       change_24h: marketData.market_data.price_change_percentage_24h,
       risk_score: risk.total,
