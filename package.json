@@ -1,0 +1,7 @@
+{
+  "name": "pulseguard",
+  "version": "1.0.0",
+  "description": "AI-powered risk scoring dashboard for Solana ecosystem tokens. Built for the Bitget AI Hackathon (Trading Infrastructure track).",
+  "type": "module",
+  "license": "MIT"
+}
