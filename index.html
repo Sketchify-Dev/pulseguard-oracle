@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PulseGuard — AI Risk Dashboard</title>
+<title>PulseGuard - AI Risk Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -270,10 +270,10 @@ function setMode(mode) {
     renderWatchlist();
     const list = getWatchlist();
     document.getElementById('output').innerHTML = list.length === 0
-      ? `<div class="card"><div class="loading">Your watchlist is empty — search for a token and save it 🔖</div></div>`
+      ? `<div class="card"><div class="loading">Your watchlist is empty, search for a token and save it 🔖</div></div>`
       : `<div class="card"><div class="loading">Click a watchlist token to see full details 👆</div></div>`;
   } else if (mode === 'single') {
-    document.getElementById('output').innerHTML = `<div class="card"><div class="loading">Pick a token above to see its risk score 👆</div></div>`;
+    document.getElementById('output').innerHTML = `<div class="card"><div class="loading">Pick or search a token above to see its risk score 👆</div></div>`;
   } else {
     document.getElementById('output').innerHTML = `<div class="card"><div class="loading">Enter two tokens to compare their risk 👆</div></div>`;
   }
