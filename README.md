@@ -68,3 +68,49 @@ No API key required to call this endpoint, it's free and open for any agent or a
 - **Hosting:** Vercel
 
 ## Project Structure
+
+pulseguard/
+
+├── index.html          # Dashboard UI
+
+├── api/
+
+│   ├── risk-score.js   # Public risk-scoring API (GET)
+
+│   └── insight.js      # AI insight endpoint used by the dashboard (POST)
+
+├── package.json
+
+├── .env.example
+
+└── README.md
+
+## Running Locally / Deploying Your Own
+
+1. Clone this repo
+2. Copy `.env.example` to `.env` and add your own `QWEN_API_KEY` (get one from [Alibaba Cloud DashScope](https://dashscope.console.aliyun.com/))
+3. Deploy to Vercel, zero config needed. It auto-detects the `/api` functions and serves `index.html` as the homepage
+4. Add `QWEN_API_KEY` as an environment variable in your Vercel project settings
+
+If no `QWEN_API_KEY` is set, PulseGuard gracefully falls back to a rule-based summary, the dashboard and API still work fully without it.
+
+## Why This Fits Trading Infrastructure
+
+- **For traders:** a fast, visual risk reading on any token before they ape in
+- **For AI agents:** a free, single-call API returning structured JSON — no auth, no setup
+- **Extensible:** the risk formula, AI prompt, and data source are isolated and easy to swap or extend e.g. adding on-chain metrics or plugging into Bitget Agent Hub's Skill Hub
+
+## Roadmap
+
+- [ ] Batch endpoint — score multiple tokens in a single request
+- [ ] Response caching to reduce CoinGecko rate-limit pressure
+- [ ] Historical risk tracking (score over time)
+- [ ] Integration with Bitget Agent Hub's on-chain/sentiment skills
+
+## Team
+
+Built solo by **Sketchify Labs** ([@0xSketchify](https://x.com/0xSketchify)) for the Bitget AI × Crypto Trading Hackathon (June 2026).
+
+## License
+
+MIT
