@@ -70,12 +70,19 @@ No API key required to call this endpoint, it's free and open for any agent or a
 ## Project Structure
 
 pulseguard/
+
 ├── index.html          # Dashboard UI
+
 ├── api/
+
 │   ├── risk-score.js   # Public risk-scoring API (GET)
+
 │   └── insight.js      # AI insight endpoint used by the dashboard (POST)
+
 ├── package.json
+
 ├── .env.example
+
 └── README.md
 
 ## Running Locally / Deploying Your Own
