@@ -70,19 +70,12 @@ No API key required to call this endpoint, it's free and open for any agent or a
 ## Project Structure
 
 pulseguard/
-
 ├── index.html          # Dashboard UI
-
 ├── api/
-
 │   ├── risk-score.js   # Public risk-scoring API (GET)
-
 │   └── insight.js      # AI insight endpoint used by the dashboard (POST)
-
 ├── package.json
-
 ├── .env.example
-
 └── README.md
 
 ## Running Locally / Deploying Your Own
@@ -97,12 +90,12 @@ If no `QWEN_API_KEY` is set, PulseGuard gracefully falls back to a rule-based su
 ## Why This Fits Trading Infrastructure
 
 - **For traders:** a fast, visual risk reading on any token before they ape in
-- **For AI agents:** a free, single-call API returning structured JSON — no auth, no setup
+- **For AI agents:** a free, single-call API returning structured JSON, no auth, no setup
 - **Extensible:** the risk formula, AI prompt, and data source are isolated and easy to swap or extend e.g. adding on-chain metrics or plugging into Bitget Agent Hub's Skill Hub
 
 ## Roadmap
 
-- [ ] Batch endpoint — score multiple tokens in a single request
+- [ ] Batch endpoint, score multiple tokens in a single request
 - [ ] Response caching to reduce CoinGecko rate-limit pressure
 - [ ] Historical risk tracking (score over time)
 - [ ] Integration with Bitget Agent Hub's on-chain/sentiment skills
