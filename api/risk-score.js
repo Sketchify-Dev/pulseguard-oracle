@@ -10,7 +10,7 @@
  *      to keep response times fast and conserve AI credits. For a full
  *      AI-generated insight, query a single token instead.
  *
- * `<id>` can be a CoinGecko ID (e.g. "solana"), or a name/symbol
+ * `<id>` can be a CoinGecko ID (e.g. "solana"), or a name/symbol —
  * PulseGuard searches for the closest match if an exact ID isn't found.
  *
  * Single response shape:
@@ -67,6 +67,12 @@ export default async function handler(req, res) {
     const risk = calculateRisk(marketData.market_data);
     const insight = await getAIInsight(marketData, risk);
     await incrementUsageCounter();
+    await saveRiskHistory(
+      marketData.id,
+      risk.total,
+      risk.level,
+      marketData.market_data.current_price.usd
+    );
     return res.status(200).json(formatResult(marketData, risk, insight));
   } catch (err) {
     return res.status(404).json({ error: err.message || 'Token not found' });
@@ -92,7 +98,7 @@ function formatResult(marketData, risk, insight) {
 }
 
 // ---------------------------------------------------------
-// Usage tracking - free, no-auth counter via CountAPI.
+// Usage tracking — free, no-auth counter via CountAPI.
 // Powers the "X risk checks performed" stat on the dashboard
 // (see /api/stats). Failures here never break the main response.
 // ---------------------------------------------------------
@@ -105,7 +111,39 @@ async function incrementUsageCounter() {
 }
 
 // ---------------------------------------------------------
-// 1. Market data - CoinGecko (no API key required)
+// Risk History — saves every score snapshot to Upstash Redis
+// Powers the Risk Timeline and Momentum features
+// ---------------------------------------------------------
+async function saveRiskHistory(tokenId, score, level, price) {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return; // graceful no-op without storage
+
+  const snapshot = JSON.stringify({ score, level, price, timestamp: Date.now() });
+  const key = `pg:history:${tokenId}`;
+
+  try {
+    // Push to front of list, keep last 10 entries
+    await fetch(`${url}/lpush/${key}/${encodeURIComponent(snapshot)}`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    await fetch(`${url}/ltrim/${key}/0/9`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    // Expire after 7 days
+    await fetch(`${url}/expire/${key}/604800`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    });
+  } catch (e) {
+    // non-critical — never break the main response
+  }
+}
+
+// ---------------------------------------------------------
+// 1. Market data — CoinGecko (no API key required)
 // ---------------------------------------------------------
 async function fetchTokenData(query) {
   const slug = query.toLowerCase().replace(/\s+/g, '-');
@@ -126,7 +164,7 @@ async function fetchTokenData(query) {
 }
 
 // ---------------------------------------------------------
-// 2. Risk Engine - turns raw market data into a 0-100 score
+// 2. Risk Engine — turns raw market data into a 0-100 score
 // ---------------------------------------------------------
 function calculateRisk(m) {
   const change = m.price_change_percentage_24h ?? 0;
@@ -174,7 +212,7 @@ function calculateRisk(m) {
 }
 
 // ---------------------------------------------------------
-// 3. AI Insight - Qwen (via Alibaba Cloud DashScope)
+// 3. AI Insight — Qwen (via Alibaba Cloud DashScope)
 // Falls back to a rule-based summary if no API key is set,
 // so the project still works during local development.
 // ---------------------------------------------------------
