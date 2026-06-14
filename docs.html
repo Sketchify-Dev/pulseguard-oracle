@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PulseGuard API Docs</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#07070f; --surface:#0f0f1a; --card:#13131f; --border:#ffffff0f; --border2:#ffffff18; --text:#f0f0ff; --text-dim:#7b7b9d; --text-mid:#a0a0c0; --accent:#7c6dfa; --accent2:#a78bfa; --green:#22d87a; --yellow:#f5c542; --red:#ff4f6a; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Space Grotesk',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+  body::before { content:''; position:fixed; inset:0; background-image:linear-gradient(rgba(124,109,250,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(124,109,250,0.03) 1px,transparent 1px); background-size:40px 40px; pointer-events:none; z-index:0; }
+  .wrap { position:relative; z-index:1; max-width:720px; margin:0 auto; padding:40px 24px 80px; }
+
+  /* Nav */
+  .nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:48px; }
+  .nav-logo { display:flex; align-items:center; gap:10px; text-decoration:none; }
+  .nav-icon { width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; font-size:16px; }
+  .nav-name { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:20px; background:linear-gradient(135deg,#fff 40%,var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .nav-link { font-size:13px; color:var(--accent2); text-decoration:none; border:1px solid rgba(124,109,250,0.3); padding:7px 14px; border-radius:8px; }
+  .nav-link:hover { background:rgba(124,109,250,0.1); }
+
+  /* Hero */
+  .hero { margin-bottom:48px; }
+  .hero-tag { font-size:11px; text-transform:uppercase; letter-spacing:2px; color:var(--accent2); font-weight:600; margin-bottom:12px; }
+  .hero-title { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:42px; line-height:1.1; margin-bottom:14px; background:linear-gradient(135deg,#fff 50%,var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .hero-desc { font-size:15px; color:var(--text-mid); line-height:1.7; max-width:560px; }
+
+  /* Base URL */
+  .base-url { background:var(--surface); border:1px solid var(--border2); border-radius:12px; padding:14px 18px; margin-bottom:40px; display:flex; align-items:center; gap:12px; }
+  .base-label { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); font-weight:600; flex-shrink:0; }
+  .base-val { font-family:monospace; font-size:13px; color:var(--accent2); }
+
+  /* Section */
+  .section { margin-bottom:48px; }
+  .section-title { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:24px; margin-bottom:6px; }
+  .section-desc { font-size:13px; color:var(--text-dim); margin-bottom:20px; line-height:1.6; }
+
+  /* Endpoint card */
+  .endpoint { background:var(--surface); border:1px solid var(--border2); border-radius:16px; margin-bottom:20px; overflow:hidden; }
+  .endpoint-header { display:flex; align-items:center; gap:12px; padding:16px 20px; border-bottom:1px solid var(--border); }
+  .method { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:13px; letter-spacing:1px; padding:4px 10px; border-radius:6px; flex-shrink:0; }
+  .method.get { background:rgba(34,216,122,0.12); color:var(--green); }
+  .method.post { background:rgba(124,109,250,0.12); color:var(--accent2); }
+  .endpoint-path { font-family:monospace; font-size:14px; color:var(--text); flex:1; }
+  .endpoint-desc { font-size:12px; color:var(--text-dim); flex-shrink:0; }
+  .endpoint-body { padding:20px; }
+  .param-title { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); font-weight:600; margin-bottom:12px; }
+  .param-row { display:flex; align-items:flex-start; gap:12px; margin-bottom:10px; font-size:13px; }
+  .param-name { font-family:monospace; color:var(--accent2); flex-shrink:0; min-width:160px; }
+  .param-type { font-size:11px; color:var(--text-dim); background:var(--card); border-radius:4px; padding:2px 6px; flex-shrink:0; }
+  .param-desc { color:var(--text-mid); line-height:1.5; }
+  .required { font-size:10px; color:var(--red); background:rgba(255,79,106,0.1); border-radius:4px; padding:2px 6px; flex-shrink:0; }
+
+  /* Code block */
+  .code-block { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px; margin-top:14px; font-family:monospace; font-size:12px; line-height:1.9; overflow-x:auto; }
+  .code-label { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); font-weight:600; margin-bottom:8px; }
+  .json-key { color:var(--accent2); }
+  .json-str { color:var(--green); }
+  .json-num { color:var(--yellow); }
+  .json-bool { color:var(--red); }
+
+  /* Flag severity */
+  .flag-high { color:var(--red); }
+  .flag-medium { color:var(--yellow); }
+  .flag-low { color:var(--green); }
+
+  /* Try it button */
+  .try-btn { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--accent2); border:1px solid rgba(124,109,250,0.3); padding:6px 12px; border-radius:8px; text-decoration:none; margin-top:14px; cursor:pointer; background:none; font-family:inherit; transition:all 0.15s; }
+  .try-btn:hover { background:rgba(124,109,250,0.1); }
+
+  /* Features grid */
+  .features { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px; }
+  .feature { background:var(--surface); border:1px solid var(--border2); border-radius:12px; padding:16px; }
+  .feature-icon { font-size:20px; margin-bottom:8px; }
+  .feature-title { font-size:13px; font-weight:700; margin-bottom:4px; }
+  .feature-desc { font-size:12px; color:var(--text-dim); line-height:1.5; }
+
+  .divider { border:none; border-top:1px solid var(--border); margin:40px 0; }
+  .footer { text-align:center; font-size:12px; color:var(--text-dim); line-height:1.8; }
+  .footer a { color:var(--accent2); text-decoration:none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="nav">
+    <a href="/" class="nav-logo">
+      <div class="nav-icon">⚡</div>
+      <div class="nav-name">PulseGuard</div>
+    </a>
+    <a href="/" class="nav-link">← Back to Dashboard</a>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-tag">API Reference</div>
+    <div class="hero-title">Risk Intelligence API</div>
+    <div class="hero-desc">Free, open, no auth required. Any AI agent, trading bot, or app can integrate PulseGuard's risk scoring in a single API call.</div>
+  </div>
+
+  <div class="base-url">
+    <div class="base-label">Base URL</div>
+    <div class="base-val">https://pulseguard-two.vercel.app</div>
+  </div>
+
+  <!-- Overview -->
+  <div class="section">
+    <div class="section-title">Why Use This API</div>
+    <div class="section-desc">PulseGuard turns live market data into a structured risk signal — so your agent or app doesn't have to build its own risk engine from scratch.</div>
+    <div class="features">
+      <div class="feature"><div class="feature-icon">🔓</div><div class="feature-title">No Auth</div><div class="feature-desc">Zero API keys, zero signup. Call any endpoint directly.</div></div>
+      <div class="feature"><div class="feature-icon">⚡</div><div class="feature-title">Batch Support</div><div class="feature-desc">Score up to 10 tokens in a single request.</div></div>
+      <div class="feature"><div class="feature-icon">🤖</div><div class="feature-title">AI Insights</div><div class="feature-desc">Each response includes a Qwen-powered plain-English analysis.</div></div>
+      <div class="feature"><div class="feature-icon">🌐</div><div class="feature-title">CORS Open</div><div class="feature-desc">Call from any frontend, serverless function, or agent.</div></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Endpoints -->
+  <div class="section">
+    <div class="section-title">Endpoints</div>
+
+    <!-- Single token -->
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <div class="method get">GET</div>
+        <div class="endpoint-path">/api/risk-score</div>
+        <div class="endpoint-desc">Single token risk score</div>
+      </div>
+      <div class="endpoint-body">
+        <div class="param-title">Query Parameters</div>
+        <div class="param-row">
+          <span class="param-name">token</span>
+          <span class="param-type">string</span>
+          <span class="required">required</span>
+          <span class="param-desc">CoinGecko ID, name, or symbol. PulseGuard finds the closest match automatically. e.g. <code>solana</code>, <code>btc</code>, <code>bonk</code></span>
+        </div>
+        <div class="code-label">Example Request</div>
+        <div class="code-block">GET /api/risk-score?token=solana</div>
+        <div class="code-label" style="margin-top:14px">Response</div>
+        <div class="code-block">
+{<br>
+&nbsp;&nbsp;<span class="json-key">"token"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"name"</span>: <span class="json-str">"Solana"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"symbol"</span>: <span class="json-str">"sol"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"image"</span>: <span class="json-str">"https://..."</span><br>
+&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;<span class="json-key">"price"</span>: <span class="json-num">68.14</span>,<br>
+&nbsp;&nbsp;<span class="json-key">"change_24h"</span>: <span class="json-num">2.18</span>,<br>
+&nbsp;&nbsp;<span class="json-key">"risk_score"</span>: <span class="json-num">43</span>,<br>
+&nbsp;&nbsp;<span class="json-key">"risk_level"</span>: <span class="json-str">"Medium"</span>,<br>
+&nbsp;&nbsp;<span class="json-key">"risk_color"</span>: <span class="json-str">"#f5c542"</span>,<br>
+&nbsp;&nbsp;<span class="json-key">"breakdown"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"volatility"</span>: <span class="json-num">4</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"liquidity"</span>: <span class="json-num">20</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"momentum"</span>: <span class="json-num">18</span><br>
+&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;<span class="json-key">"ai_insight"</span>: <span class="json-str">"Solana shows moderate risk..."</span><br>
+}
+        </div>
+        <a class="try-btn" href="/api/risk-score?token=solana" target="_blank">↗ Try it live</a>
+      </div>
+    </div>
+
+    <!-- Batch -->
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <div class="method get">GET</div>
+        <div class="endpoint-path">/api/risk-score?tokens=...</div>
+        <div class="endpoint-desc">Batch — up to 10 tokens</div>
+      </div>
+      <div class="endpoint-body">
+        <div class="param-title">Query Parameters</div>
+        <div class="param-row">
+          <span class="param-name">tokens</span>
+          <span class="param-type">string</span>
+          <span class="required">required</span>
+          <span class="param-desc">Comma-separated list of token IDs/names. Max 10. Batch responses use rule-based insights (no AI per token) for faster response times.</span>
+        </div>
+        <div class="code-label">Example Request</div>
+        <div class="code-block">GET /api/risk-score?tokens=solana,bitcoin,ethereum</div>
+        <div class="code-label" style="margin-top:14px">Response</div>
+        <div class="code-block">
+{<br>
+&nbsp;&nbsp;<span class="json-key">"results"</span>: [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="json-key">"token"</span>: { <span class="json-key">"name"</span>: <span class="json-str">"Solana"</span> }, <span class="json-key">"risk_score"</span>: <span class="json-num">43</span>, <span class="json-key">"risk_level"</span>: <span class="json-str">"Medium"</span>, ... },<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="json-key">"token"</span>: { <span class="json-key">"name"</span>: <span class="json-str">"Bitcoin"</span> }, <span class="json-key">"risk_score"</span>: <span class="json-num">28</span>, <span class="json-key">"risk_level"</span>: <span class="json-str">"Low"</span>, ... },<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="json-key">"token"</span>: { <span class="json-key">"name"</span>: <span class="json-str">"Ethereum"</span> }, <span class="json-key">"risk_score"</span>: <span class="json-num">31</span>, <span class="json-key">"risk_level"</span>: <span class="json-str">"Low"</span>, ... }<br>
+&nbsp;&nbsp;]<br>
+}
+        </div>
+        <a class="try-btn" href="/api/risk-score?tokens=solana,bitcoin,ethereum" target="_blank">↗ Try it live</a>
+      </div>
+    </div>
+
+    <!-- Pre-trade -->
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <div class="method post">POST</div>
+        <div class="endpoint-path">/api/pretrade</div>
+        <div class="endpoint-desc">Pre-trade risk check</div>
+      </div>
+      <div class="endpoint-body">
+        <div class="param-title">Request Body (JSON)</div>
+        <div class="param-row">
+          <span class="param-name">token</span>
+          <span class="param-type">string</span>
+          <span class="required">required</span>
+          <span class="param-desc">Token ID, name, or symbol</span>
+        </div>
+        <div class="param-row">
+          <span class="param-name">amount</span>
+          <span class="param-type">number</span>
+          <span class="param-desc">USD value of intended trade (optional)</span>
+        </div>
+        <div class="param-row">
+          <span class="param-name">portfolio_value</span>
+          <span class="param-type">number</span>
+          <span class="param-desc">Total portfolio size in USD (optional — enables position sizing recommendations)</span>
+        </div>
+        <div class="code-label">Example Request</div>
+        <div class="code-block">
+POST /api/pretrade<br>
+Content-Type: application/json<br><br>
+{<br>
+&nbsp;&nbsp;<span class="json-key">"token"</span>: <span class="json-str">"solana"</span>,<br>
+&nbsp;&nbsp;<span class="json-key">"amount"</span>: <span class="json-num">500</span>,<br>
+&nbsp;&nbsp;<span class="json-key">"portfolio_value"</span>: <span class="json-num">5000</span><br>
+}
+        </div>
+        <div class="code-label" style="margin-top:14px">Response</div>
+        <div class="code-block">
+{<br>
+&nbsp;&nbsp;<span class="json-key">"token"</span>: { <span class="json-key">"name"</span>: <span class="json-str">"Solana"</span>, <span class="json-key">"symbol"</span>: <span class="json-str">"sol"</span> },<br>
+&nbsp;&nbsp;<span class="json-key">"risk_score"</span>: <span class="json-num">43</span>,<br>
+&nbsp;&nbsp;<span class="json-key">"risk_level"</span>: <span class="json-str">"Medium"</span>,<br>
+&nbsp;&nbsp;<span class="json-key">"position_check"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"entered_pct"</span>: <span class="json-num">10</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"max_allocation_pct"</span>: <span class="json-num">10</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"over_exposed"</span>: <span class="json-bool">false</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"warning"</span>: <span class="json-bool">null</span><br>
+&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;<span class="json-key">"flags"</span>: [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="json-key">"severity"</span>: <span class="json-str">"medium"</span>, <span class="json-key">"message"</span>: <span class="json-str">"Below-average liquidity..."</span> }<br>
+&nbsp;&nbsp;],<br>
+&nbsp;&nbsp;<span class="json-key">"ai_verdict"</span>: <span class="json-str">"Position sizing looks acceptable..."</span><br>
+}
+        </div>
+      </div>
+    </div>
+
+    <!-- History -->
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <div class="method get">GET</div>
+        <div class="endpoint-path">/api/history</div>
+        <div class="endpoint-desc">Risk score timeline</div>
+      </div>
+      <div class="endpoint-body">
+        <div class="param-title">Query Parameters</div>
+        <div class="param-row">
+          <span class="param-name">token</span>
+          <span class="param-type">string</span>
+          <span class="required">required</span>
+          <span class="param-desc">Token CoinGecko ID. Returns last 10 risk snapshots saved when /api/risk-score was called.</span>
+        </div>
+        <div class="code-label">Example Request</div>
+        <div class="code-block">GET /api/history?token=solana</div>
+        <div class="code-label" style="margin-top:14px">Response</div>
+        <div class="code-block">
+{<br>
+&nbsp;&nbsp;<span class="json-key">"token"</span>: <span class="json-str">"solana"</span>,<br>
+&nbsp;&nbsp;<span class="json-key">"history"</span>: [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="json-key">"score"</span>: <span class="json-num">43</span>, <span class="json-key">"level"</span>: <span class="json-str">"Medium"</span>, <span class="json-key">"price"</span>: <span class="json-num">68.14</span>, <span class="json-key">"timestamp"</span>: <span class="json-num">1718870400000</span> },<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="json-key">"score"</span>: <span class="json-num">38</span>, <span class="json-key">"level"</span>: <span class="json-str">"Medium"</span>, <span class="json-key">"price"</span>: <span class="json-num">65.20</span>, <span class="json-key">"timestamp"</span>: <span class="json-num">1718784000000</span> }<br>
+&nbsp;&nbsp;],<br>
+&nbsp;&nbsp;<span class="json-key">"momentum"</span>: { <span class="json-key">"delta"</span>: <span class="json-num">5</span>, <span class="json-key">"trend"</span>: <span class="json-str">"rising"</span>, <span class="json-key">"label"</span>: <span class="json-str">"▲ +5 Rising"</span> }<br>
+}
+        </div>
+        <a class="try-btn" href="/api/history?token=solana" target="_blank">↗ Try it live</a>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <div class="method get">GET</div>
+        <div class="endpoint-path">/api/stats</div>
+        <div class="endpoint-desc">Usage statistics</div>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-label">Response</div>
+        <div class="code-block">{ <span class="json-key">"total_checks"</span>: <span class="json-num">142</span> }</div>
+        <a class="try-btn" href="/api/stats" target="_blank">↗ Try it live</a>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Risk Score -->
+  <div class="section">
+    <div class="section-title">Risk Score Formula</div>
+    <div class="section-desc">Every score is calculated from three weighted signals derived from live CoinGecko market data. No black box — fully transparent and reproducible.</div>
+    <div class="endpoint">
+      <div class="endpoint-body">
+        <div class="param-row"><span class="param-name" style="color:var(--accent2)">Volatility</span><span class="param-type">weight: 40%</span><span class="param-desc">Absolute 24h price change × 2, capped at 40. Larger swings = higher score.</span></div>
+        <div class="param-row"><span class="param-name" style="color:var(--accent2)">Liquidity</span><span class="param-type">weight: 30%</span><span class="param-desc">24h volume / market cap ratio. Thinner liquidity = harder to exit = higher score.</span></div>
+        <div class="param-row"><span class="param-name" style="color:var(--accent2)">Momentum</span><span class="param-type">weight: 30%</span><span class="param-desc">Price position within its 24h range. Near extremes = closer to reversal = higher score.</span></div>
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:13px;color:var(--text-dim)">
+          <strong style="color:var(--text-mid)">Score Levels:</strong> &nbsp;
+          <span style="color:var(--green)">Low Risk (0–33)</span> &nbsp;·&nbsp;
+          <span style="color:var(--yellow)">Medium Risk (34–66)</span> &nbsp;·&nbsp;
+          <span style="color:var(--red)">High Risk (67–100)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="footer">
+    Built by <a href="https://x.com/0xSketchify" target="_blank">@0xSketchify</a> · Sketchify Labs<br>
+    Bitget AI Hackathon — Trading Infrastructure Track · June 2026<br><br>
+    <a href="/">← Back to Dashboard</a>
+  </div>
+
+</div>
+</body>
+</html>
