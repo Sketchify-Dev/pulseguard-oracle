@@ -333,6 +333,20 @@
   .json-str { color: var(--green); }
   .json-num { color: var(--yellow); }
   .json-brace { color: var(--text-dim); }
+
+  /* Risk Momentum */
+  .momentum-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px; border-radius: 20px; font-size: 12px;
+    font-weight: 700; letter-spacing: 0.3px; margin-left: 10px;
+    font-family: 'Barlow Condensed', sans-serif;
+  }
+  .momentum-rising { background: rgba(255,79,106,0.12); color: var(--red); border: 1px solid rgba(255,79,106,0.25); }
+  .momentum-falling { background: rgba(34,216,122,0.12); color: var(--green); border: 1px solid rgba(34,216,122,0.25); }
+  .momentum-stable { background: rgba(245,197,66,0.12); color: var(--yellow); border: 1px solid rgba(245,197,66,0.25); }
+  .momentum-row { display: flex; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 8px; }
+  .momentum-label { font-size: 12px; color: var(--text-dim); }
+
 </style>
 </head>
 <body>
@@ -347,7 +361,7 @@
       </div>
       <div class="stats-badge" id="statsBadge"></div>
     </div>
-    <div class="header-sub">AI-powered risk scoring for any crypto token</div>
+    <div class="header-sub">Real-time Risk Intelligence API for Crypto Trading</div>
   </div>
 
   <!-- Mode tabs -->
@@ -466,7 +480,7 @@ function showEmpty() {
     <div class="empty-state">
       <span class="empty-icon">🛡️</span>
       <div class="empty-title">Know Your Risk Before You Ape In</div>
-      <div class="empty-desc">PulseGuard scores any token's risk in seconds using live market data and AI — so you trade smarter, not blindly.</div>
+      <div class="empty-desc">PulseGuard is a Risk Intelligence API that scores any token in real-time — built for traders, bots, and AI agents that need a risk signal before executing a position.</div>
       <div class="empty-features">
         <div class="empty-feature"><span class="empty-feature-icon">📊</span>Live risk score (0-100) with full breakdown</div>
         <div class="empty-feature"><span class="empty-feature-icon">🤖</span>AI-generated trader insight powered by Qwen</div>
@@ -668,6 +682,7 @@ async function run() {
     const isPos = (m.price_change_percentage_24h ?? 0) >= 0;
     const p = ps(m.current_price.usd);
     _lastData = data; _lastRisk = risk; _lastInsight = fb;
+    const momentumHTML = renderMomentumBadge(data.id, risk.total);
     const inWL = !!getWatchlist().find(t => t.id === data.id);
 
     out.innerHTML = `
@@ -683,6 +698,7 @@ async function run() {
           <div class="price">${p}</div>
           <div class="change ${isPos?'pos':'neg'}">${isPos?'+':''}${(m.price_change_percentage_24h??0).toFixed(2)}% 24h</div>
         </div>
+        ${momentumHTML}
         <div class="score-section">
           <div class="score-ring" style="background:conic-gradient(${risk.color} ${risk.total*3.6}deg,#1a1a28 0deg)">
             <div class="score-ring-inner">
@@ -773,6 +789,68 @@ async function runCompare() {
     }
   } catch {}
 })();
+
+// ── Risk Momentum Engine ──
+// Stores the last 10 risk scores per token in localStorage
+// so we can calculate trend without any external API
+
+function getMomentumHistory(tokenId) {
+  try { return JSON.parse(localStorage.getItem('pg_history_' + tokenId) || '[]'); } catch { return []; }
+}
+
+function saveMomentumHistory(tokenId, score) {
+  const history = getMomentumHistory(tokenId);
+  history.push({ score, ts: Date.now() });
+  // Keep last 10 snapshots only
+  if (history.length > 10) history.shift();
+  try { localStorage.setItem('pg_history_' + tokenId, JSON.stringify(history)); } catch {}
+  return history;
+}
+
+function calculateMomentum(history) {
+  if (history.length < 2) return null;
+  const current = history[history.length - 1].score;
+  const previous = history[history.length - 2].score;
+  const delta = current - previous;
+
+  // Check for escalation: rising 3 times in a row
+  let escalating = false;
+  if (history.length >= 4) {
+    const last4 = history.slice(-4).map(h => h.score);
+    escalating = last4[1] > last4[0] && last4[2] > last4[1] && last4[3] > last4[2];
+  }
+
+  let trend, label, cls;
+  if (Math.abs(delta) <= 3) { trend = 'stable'; label = '● Stable Risk'; cls = 'momentum-stable'; }
+  else if (delta > 0) {
+    trend = 'rising';
+    label = escalating ? `▲ +${delta} Escalating ⚠️` : `▲ +${delta} Rising`;
+    cls = 'momentum-rising';
+  } else {
+    trend = 'falling';
+    label = `▼ ${delta} Improving`;
+    cls = 'momentum-falling';
+  }
+
+  return { delta, trend, label, cls, escalating };
+}
+
+function renderMomentumBadge(tokenId, currentScore) {
+  const history = saveMomentumHistory(tokenId, currentScore);
+  const momentum = calculateMomentum(history);
+  if (!momentum) return '';
+
+  const checksLabel = history.length > 1
+    ? `<span class="momentum-label">vs last check</span>`
+    : '';
+
+  return `<div class="momentum-row">
+    ${checksLabel}
+    <span class="momentum-badge ${momentum.cls}">${momentum.label}</span>
+    ${momentum.escalating ? '<span class="momentum-badge momentum-rising">⚠️ Risk Escalating</span>' : ''}
+  </div>`;
+}
+
 </script>
 </body>
 </html>
