@@ -895,6 +895,78 @@ function renderMomentumBadge(tokenId, currentScore) {
   </div>`;
 }
 
+
+// ── Pre-Trade Risk Check ──
+async function runPretrade() {
+  const token = document.getElementById('pretradeToken').value.trim();
+  const amount = parseFloat(document.getElementById('pretradeAmount').value) || null;
+  const portfolio = parseFloat(document.getElementById('pretradePortfolio').value) || null;
+
+  if (!token) {
+    document.getElementById('output').innerHTML = '<div class="error-state">⚠️ Please enter a token name to check.</div>';
+    return;
+  }
+
+  const out = document.getElementById('output');
+  out.innerHTML = '<div class="empty-state"><span class="empty-icon" style="animation:pulse 1s infinite">🛡️</span><div class="empty-title" style="font-size:18px">Running pre-trade check...</div><div class="empty-desc">Analyzing risk signals for ' + token + '</div></div>';
+
+  try {
+    const res = await fetch('/api/pretrade', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, amount, portfolio_value: portfolio })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    const colorHex = data.risk_color || '#f5c542';
+    const flagIcons = { high: '🔴', medium: '🟡', low: '🟢' };
+
+    const imgHTML = data.token.image
+      ? '<img src="' + data.token.image + '" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">'
+      : (data.token.symbol || '?').substring(0,3).toUpperCase();
+
+    let positionHTML = '';
+    if (data.position_check && amount && portfolio) {
+      const pc = data.position_check;
+      positionHTML = '<div class="pretrade-position">' +
+        '<div class="pretrade-position-title">Position Analysis</div>' +
+        '<div class="pretrade-position-row"><span class="pretrade-position-label">Trade amount</span><span class="pretrade-position-val">$' + amount.toLocaleString() + '</span></div>' +
+        '<div class="pretrade-position-row"><span class="pretrade-position-label">Portfolio size</span><span class="pretrade-position-val">$' + portfolio.toLocaleString() + '</span></div>' +
+        '<div class="pretrade-position-row"><span class="pretrade-position-label">Position size</span><span class="pretrade-position-val" style="color:' + (pc.over_exposed ? 'var(--red)' : 'var(--green)') + '">' + pc.entered_pct + '% of portfolio</span></div>' +
+        '<div class="pretrade-position-row"><span class="pretrade-position-label">Max recommended</span><span class="pretrade-position-val">' + pc.max_allocation_pct + '% for ' + data.risk_level + ' Risk</span></div>' +
+        (pc.warning ? '<div class="pretrade-warning">⚠️ ' + pc.warning + '</div>' : '<div style="margin-top:10px;font-size:13px;color:var(--green)">✓ Position size within safe range</div>') +
+        '</div>';
+    }
+
+    const flagsHTML = data.flags.map(function(f) {
+      return '<div class="flag ' + f.severity + '"><span class="flag-icon">' + (flagIcons[f.severity] || '●') + '</span><span>' + f.message + '</span></div>';
+    }).join('');
+
+    out.innerHTML =
+      '<div class="pretrade-result">' +
+        '<div class="pretrade-header">' +
+          '<div class="token-icon">' + imgHTML + '</div>' +
+          '<div><div class="token-name">' + data.token.name + '</div><div class="token-symbol">' + data.token.symbol + '</div></div>' +
+        '</div>' +
+        '<div class="pretrade-score-section">' +
+          '<div><div class="pretrade-score-num" style="color:' + colorHex + '">' + data.risk_score + '</div><div style="font-size:10px;color:var(--text-dim);margin-top:2px">/ 100</div></div>' +
+          '<div><div class="pretrade-level" style="color:' + colorHex + '">' + data.risk_level + ' Risk</div><div style="font-size:13px;color:var(--text-dim);margin-top:4px">Pre-trade assessment</div></div>' +
+        '</div>' +
+        positionHTML +
+        '<div class="flags-title">Risk Flags</div>' +
+        flagsHTML +
+        '<div class="verdict-card">' +
+          '<div class="verdict-label"><span class="ai-dot"></span>AI Verdict</div>' +
+          '<div class="verdict-text">' + data.ai_verdict + '</div>' +
+        '</div>' +
+      '</div>';
+
+  } catch(e) {
+    out.innerHTML = '<div class="error-state">⚠️ ' + (e.message || 'Something went wrong') + '. Try a different token.</div>';
+  }
+}
+
 </script>
 </body>
 </html>
