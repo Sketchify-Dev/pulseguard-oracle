@@ -316,6 +316,23 @@
   .error-state { text-align: center; color: var(--red); font-size: 14px; padding: 32px 20px; background: rgba(255,79,106,0.05); border: 1px solid rgba(255,79,106,0.15); border-radius: 16px; }
   .footer-note { text-align: center; font-size: 12px; color: var(--text-dim); line-height: 1.8; padding-top: 8px; }
   .footer-note span { color: var(--accent2); }
+
+  /* API Showcase */
+  .api-section { margin-top: 32px; background: var(--surface); border: 1px solid var(--border2); border-radius: 20px; padding: 22px; }
+  .api-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 18px; margin-bottom: 6px; }
+  .api-desc { font-size: 13px; color: var(--text-dim); margin-bottom: 16px; }
+  .api-endpoints { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .api-endpoint { display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; cursor: pointer; transition: all 0.15s; }
+  .api-endpoint:hover { border-color: var(--accent); background: var(--glow-accent); }
+  .api-method { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 12px; color: var(--accent2); background: rgba(124,109,250,0.12); border-radius: 6px; padding: 3px 8px; flex-shrink: 0; letter-spacing: 0.5px; }
+  .api-path { font-family: monospace; font-size: 12px; color: var(--text-mid); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .api-arrow { font-size: 14px; color: var(--text-dim); flex-shrink: 0; }
+  .api-response-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin-bottom: 10px; }
+  .api-response { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; font-family: monospace; font-size: 12px; line-height: 1.9; overflow-x: auto; }
+  .json-key { color: var(--accent2); }
+  .json-str { color: var(--green); }
+  .json-num { color: var(--yellow); }
+  .json-brace { color: var(--text-dim); }
 </style>
 </head>
 <body>
@@ -394,6 +411,42 @@
         <button class="modal-btn modal-btn-close" onclick="closeShareModal()">Close</button>
         <button class="modal-btn modal-btn-copy" onclick="copyShareText()" id="copyBtn">Copy Text</button>
       </div>
+    </div>
+  </div>
+
+
+  <!-- API Showcase -->
+  <div class="api-section">
+    <div class="api-title">🔌 Free Public API</div>
+    <div class="api-desc">No auth required. Any AI agent or app can plug this in directly.</div>
+    <div class="api-endpoints">
+      <div class="api-endpoint" onclick="window.open('https://pulseguard-two.vercel.app/api/risk-score?token=solana','_blank')">
+        <div class="api-method">GET</div>
+        <div class="api-path">/api/risk-score?token=solana</div>
+        <div class="api-arrow">↗</div>
+      </div>
+      <div class="api-endpoint" onclick="window.open('https://pulseguard-two.vercel.app/api/risk-score?tokens=solana,bitcoin,ethereum','_blank')">
+        <div class="api-method">GET</div>
+        <div class="api-path">/api/risk-score?tokens=solana,bitcoin,ethereum</div>
+        <div class="api-arrow">↗</div>
+      </div>
+      <div class="api-endpoint" onclick="window.open('https://pulseguard-two.vercel.app/api/stats','_blank')">
+        <div class="api-method">GET</div>
+        <div class="api-path">/api/stats</div>
+        <div class="api-arrow">↗</div>
+      </div>
+    </div>
+    <div class="api-response-label">Example response</div>
+    <div class="api-response">
+      <span class="json-brace">{</span><br>
+      &nbsp;&nbsp;<span class="json-key">"token"</span>: { <span class="json-key">"name"</span>: <span class="json-str">"Solana"</span>, <span class="json-key">"symbol"</span>: <span class="json-str">"sol"</span> },<br>
+      &nbsp;&nbsp;<span class="json-key">"price"</span>: <span class="json-num">68.14</span>,<br>
+      &nbsp;&nbsp;<span class="json-key">"risk_score"</span>: <span class="json-num">43</span>,<br>
+      &nbsp;&nbsp;<span class="json-key">"risk_level"</span>: <span class="json-str">"Medium"</span>,<br>
+      &nbsp;&nbsp;<span class="json-key">"risk_color"</span>: <span class="json-str">"#eab308"</span>,<br>
+      &nbsp;&nbsp;<span class="json-key">"breakdown"</span>: { <span class="json-key">"volatility"</span>: <span class="json-num">4</span>, <span class="json-key">"liquidity"</span>: <span class="json-num">20</span>, <span class="json-key">"momentum"</span>: <span class="json-num">18</span> },<br>
+      &nbsp;&nbsp;<span class="json-key">"ai_insight"</span>: <span class="json-str">"..."</span><br>
+      <span class="json-brace">}</span>
     </div>
   </div>
 
