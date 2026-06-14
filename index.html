@@ -75,6 +75,45 @@
   .ai-shimmer { height: 14px; border-radius: 4px; background: linear-gradient(90deg, #1f1f29 25%, #2a2a35 50%, #1f1f29 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; margin-bottom: 8px; }
   @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
+  /* Action buttons row */
+  .action-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .action-btn { flex: 1; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--card); color: var(--text-dim); font-family: inherit; letter-spacing: 0; transition: all 0.15s; }
+  .action-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .action-btn.saved { border-color: var(--green); color: var(--green); }
+
+  /* Share card modal */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+  .modal-overlay.hidden { display: none; }
+  .modal-box { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 24px; width: 100%; max-width: 420px; }
+  .modal-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 20px; margin-bottom: 16px; }
+  .share-card-preview {
+    background: #0a0a0f;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .share-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .share-card-icon { width: 48px; height: 48px; border-radius: 50%; background: #1f1f29; border: 1px solid var(--border); overflow: hidden; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; color: var(--accent); }
+  .share-card-icon img { width: 100%; height: 100%; object-fit: cover; }
+  .share-card-name { font-size: 18px; font-weight: 500; }
+  .share-card-symbol { font-size: 12px; color: var(--text-dim); text-transform: uppercase; }
+  .share-card-score { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 72px; line-height: 1; margin-bottom: 4px; }
+  .share-card-level { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 22px; letter-spacing: 1px; margin-bottom: 16px; }
+  .share-card-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+  .share-stat { background: #15151d; border-radius: 10px; padding: 10px; text-align: center; }
+  .share-stat-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .share-stat-val { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 18px; color: var(--accent); }
+  .share-card-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--border); }
+  .share-card-price { font-size: 14px; font-weight: 500; }
+  .share-card-brand { font-size: 12px; color: var(--text-dim); }
+  .modal-actions { display: flex; gap: 8px; }
+  .modal-btn { flex: 1; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 0.5px; }
+  .modal-btn-close { background: var(--card); border: 1px solid var(--border); color: var(--text-dim); }
+  .modal-btn-copy { background: var(--accent); border: none; color: #0a0a0f; }
+
+  /* Compare */
   .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
   .compare-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
   .compare-card.winner { border-color: var(--green); }
@@ -158,7 +197,6 @@
     <button onclick="runCompare()" style="width:100%">Compare Tokens</button>
   </div>
 
-  <!-- Watchlist section -->
   <div class="watchlist-section" id="watchlistSection">
     <div class="watchlist-header">
       <span class="watchlist-title">My Watchlist</span>
@@ -168,8 +206,19 @@
   </div>
 
   <div id="output">
-    <div class="card">
-      <div class="loading">Pick a token above to see its risk score 👆</div>
+    <div class="card"><div class="loading">Pick or search a token above to see its risk score 👆</div></div>
+  </div>
+
+  <!-- Share card modal -->
+  <div class="modal-overlay hidden" id="shareModal">
+    <div class="modal-box">
+      <div class="modal-title">Share Risk Card</div>
+      <div class="share-card-preview" id="shareCardPreview"></div>
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:14px;text-align:center">Screenshot this card and share it on crypto Twitter 🔥</div>
+      <div class="modal-actions">
+        <button class="modal-btn modal-btn-close" onclick="closeShareModal()">Close</button>
+        <button class="modal-btn modal-btn-copy" onclick="copyShareText()" id="copyBtn">Copy Text</button>
+      </div>
     </div>
   </div>
 
@@ -180,78 +229,111 @@
 
 <script>
 let currentMode = 'single';
+let _lastData = null, _lastRisk = null, _lastInsight = '';
 
 // ---------------------------------------------------------
-// Watchlist storage (localStorage)
+// Watchlist
 // ---------------------------------------------------------
-function getWatchlist() {
-  try { return JSON.parse(localStorage.getItem('pg_watchlist') || '[]'); } catch { return []; }
-}
-function saveWatchlist(list) {
-  try { localStorage.setItem('pg_watchlist', JSON.stringify(list)); } catch {}
-}
-function addToWatchlist(tokenData, risk) {
+function getWatchlist() { try { return JSON.parse(localStorage.getItem('pg_watchlist') || '[]'); } catch { return []; } }
+function saveWatchlist(list) { try { localStorage.setItem('pg_watchlist', JSON.stringify(list)); } catch {} }
+
+function addToWatchlist() {
+  if (!_lastData || !_lastRisk) return;
   const list = getWatchlist();
-  const id = tokenData.id;
-  if (list.find(t => t.id === id)) return; // already in watchlist
-  if (list.length >= 5) { alert('Watchlist is full (max 5 tokens). Remove one first.'); return; }
-  list.push({
-    id,
-    name: tokenData.name,
-    symbol: tokenData.symbol,
-    image: tokenData.image?.small || '',
-    price: tokenData.market_data.current_price.usd,
-    change: tokenData.market_data.price_change_percentage_24h ?? 0,
-    score: risk.total,
-    level: risk.level,
-    color: risk.color
-  });
+  if (list.find(t => t.id === _lastData.id)) {
+    const btn = document.getElementById('watchlistBtn');
+    if (btn) { btn.textContent = '✓ Saved'; btn.className = 'action-btn saved'; }
+    return;
+  }
+  if (list.length >= 5) { alert('Watchlist is full (max 5). Remove one first.'); return; }
+  const m = _lastData.market_data;
+  list.push({ id: _lastData.id, name: _lastData.name, symbol: _lastData.symbol, image: _lastData.image?.small || '', price: m.current_price.usd, change: m.price_change_percentage_24h ?? 0, score: _lastRisk.total, level: _lastRisk.level, color: _lastRisk.color });
   saveWatchlist(list);
   renderWatchlist();
+  const btn = document.getElementById('watchlistBtn');
+  if (btn) { btn.textContent = '✓ Saved'; btn.className = 'action-btn saved'; }
 }
-function removeFromWatchlist(id) {
-  saveWatchlist(getWatchlist().filter(t => t.id !== id));
-  renderWatchlist();
-}
-function clearWatchlist() {
-  saveWatchlist([]);
-  renderWatchlist();
-}
+
+function removeFromWatchlist(id) { saveWatchlist(getWatchlist().filter(t => t.id !== id)); renderWatchlist(); }
+function clearWatchlist() { saveWatchlist([]); renderWatchlist(); }
 
 function renderWatchlist() {
   const list = getWatchlist();
   const section = document.getElementById('watchlistSection');
   const grid = document.getElementById('watchlistGrid');
-  if (list.length === 0) {
-    section.classList.remove('show');
-    return;
-  }
+  if (list.length === 0) { section.classList.remove('show'); return; }
   section.classList.add('show');
   grid.innerHTML = list.map(t => {
     const isPos = t.change >= 0;
-    const imgHTML = t.image
-      ? `<img src="${t.image}" alt="${t.symbol}" onerror="this.style.display='none'">`
-      : t.symbol.substring(0,3).toUpperCase();
-    const ps = t.price >= 1
-      ? '$' + t.price.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})
-      : '$' + t.price.toFixed(6);
-    return `
-      <div class="watchlist-item" onclick="loadFromWatchlist('${t.id}')">
-        <div class="watchlist-icon">${imgHTML}</div>
-        <div class="watchlist-info">
-          <div class="watchlist-name">${t.name}</div>
-          <div class="watchlist-meta">${ps} · <span style="color:${isPos ? 'var(--green)' : 'var(--red)'}">${isPos ? '+' : ''}${t.change.toFixed(2)}%</span></div>
-        </div>
-        <div class="watchlist-score" style="color:${t.color}">${t.score}</div>
-        <button class="watchlist-remove" onclick="event.stopPropagation(); removeFromWatchlist('${t.id}')" title="Remove">×</button>
-      </div>`;
+    const imgHTML = t.image ? `<img src="${t.image}" alt="${t.symbol}" onerror="this.style.display='none'">` : t.symbol.substring(0,3).toUpperCase();
+    const ps = t.price >= 1 ? '$' + t.price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) : '$' + t.price.toFixed(6);
+    return `<div class="watchlist-item" onclick="loadFromWatchlist('${t.id}')">
+      <div class="watchlist-icon">${imgHTML}</div>
+      <div class="watchlist-info">
+        <div class="watchlist-name">${t.name}</div>
+        <div class="watchlist-meta">${ps} · <span style="color:${isPos?'var(--green)':'var(--red)'}">${isPos?'+':''}${t.change.toFixed(2)}%</span></div>
+      </div>
+      <div class="watchlist-score" style="color:${t.color}">${t.score}</div>
+      <button class="watchlist-remove" onclick="event.stopPropagation();removeFromWatchlist('${t.id}')" title="Remove">×</button>
+    </div>`;
   }).join('') + `<button class="watchlist-add-btn" onclick="setMode('single')">+ Add token to watchlist</button>`;
 }
 
-function loadFromWatchlist(id) {
-  setMode('single');
-  document.getElementById('tokenInput').value = id;
-  run();
+function loadFromWatchlist(id) { setMode('single'); document.getElementById('tokenInput').value = id; run(); }
+
+// ---------------------------------------------------------
+// Share card
+// ---------------------------------------------------------
+function openShareModal() {
+  if (!_lastData || !_lastRisk) return;
+  const m = _lastData.market_data;
+  const ps = m.current_price.usd >= 1
+    ? '$' + m.current_price.usd.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})
+    : '$' + m.current_price.usd.toFixed(6);
+  const isPos = (m.price_change_percentage_24h ?? 0) >= 0;
+  const colorHex = _lastRisk.level === 'Low Risk' ? '#22c55e' : _lastRisk.level === 'Medium Risk' ? '#eab308' : '#ef4444';
+  const imgHTML = _lastData.image?.small
+    ? `<img src="${_lastData.image.small}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`
+    : _lastData.symbol.substring(0,3).toUpperCase();
+
+  document.getElementById('shareCardPreview').innerHTML = `
+    <div class="share-card-header">
+      <div class="share-card-icon">${imgHTML}</div>
+      <div>
+        <div class="share-card-name">${_lastData.name}</div>
+        <div class="share-card-symbol">${_lastData.symbol.toUpperCase()}</div>
+      </div>
+    </div>
+    <div class="share-card-score" style="color:${colorHex}">${_lastRisk.total}</div>
+    <div class="share-card-level" style="color:${colorHex}">${_lastRisk.level.toUpperCase()}</div>
+    <div class="share-card-stats">
+      <div class="share-stat"><div class="share-stat-label">Volatility</div><div class="share-stat-val">${_lastRisk.breakdown.volatility}/40</div></div>
+      <div class="share-stat"><div class="share-stat-label">Liquidity</div><div class="share-stat-val">${_lastRisk.breakdown.liquidity}/30</div></div>
+      <div class="share-stat"><div class="share-stat-label">Momentum</div><div class="share-stat-val">${_lastRisk.breakdown.momentum}/30</div></div>
+    </div>
+    <div class="share-card-footer">
+      <div class="share-card-price">${ps} · <span style="color:${isPos?'#22c55e':'#ef4444'}">${isPos?'+':''}${(m.price_change_percentage_24h??0).toFixed(2)}% 24h</span></div>
+      <div class="share-card-brand">pulseguard.app</div>
+    </div>`;
+
+  document.getElementById('shareModal').classList.remove('hidden');
+}
+
+function closeShareModal() { document.getElementById('shareModal').classList.add('hidden'); }
+
+function copyShareText() {
+  if (!_lastData || !_lastRisk) return;
+  const colorHex = _lastRisk.level === 'Low Risk' ? '🟢' : _lastRisk.level === 'Medium Risk' ? '🟡' : '🔴';
+  const m = _lastData.market_data;
+  const ps = m.current_price.usd >= 1
+    ? '$' + m.current_price.usd.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})
+    : '$' + m.current_price.usd.toFixed(6);
+  const text = `${colorHex} ${_lastData.name} (${_lastData.symbol.toUpperCase()}) Risk Score: ${_lastRisk.total}/100 — ${_lastRisk.level}\n\nVolatility: ${_lastRisk.breakdown.volatility}/40\nLiquidity Risk: ${_lastRisk.breakdown.liquidity}/30\nMomentum: ${_lastRisk.breakdown.momentum}/30\n\nPrice: ${ps} | ${_lastInsight ? _lastInsight + '\n\n' : ''}Powered by PulseGuard — pulseguard-two.vercel.app\n#PulseGuard #crypto #DeFi`;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy Text', 2000);
+  });
 }
 
 // ---------------------------------------------------------
@@ -260,20 +342,20 @@ function loadFromWatchlist(id) {
 function setMode(mode) {
   currentMode = mode;
   ['single','compare','watchlist'].forEach(m => {
-    document.getElementById('tab' + m.charAt(0).toUpperCase() + m.slice(1)).classList.toggle('active', m === mode);
+    const tab = document.getElementById('tab' + m.charAt(0).toUpperCase() + m.slice(1));
+    if (tab) tab.classList.toggle('active', m === mode);
   });
   document.getElementById('singleInput').style.display = mode === 'single' ? 'flex' : 'none';
   document.getElementById('compareInputs').classList.toggle('show', mode === 'compare');
   document.getElementById('compareBtn').classList.toggle('show', mode === 'compare');
-
   if (mode === 'watchlist') {
     renderWatchlist();
     const list = getWatchlist();
     document.getElementById('output').innerHTML = list.length === 0
-      ? `<div class="card"><div class="loading">Your watchlist is empty, search for a token and save it 🔖</div></div>`
+      ? `<div class="card"><div class="loading">Your watchlist is empty, search a token and save it 🔖</div></div>`
       : `<div class="card"><div class="loading">Click a watchlist token to see full details 👆</div></div>`;
   } else if (mode === 'single') {
-    document.getElementById('output').innerHTML = `<div class="card"><div class="loading">Pick or search a token above to see its risk score 👆</div></div>`;
+    document.getElementById('output').innerHTML = `<div class="card"><div class="loading">Pick a token above to see its risk score 👆</div></div>`;
   } else {
     document.getElementById('output').innerHTML = `<div class="card"><div class="loading">Enter two tokens to compare their risk 👆</div></div>`;
   }
@@ -281,16 +363,9 @@ function setMode(mode) {
 
 function quickPick(id) {
   if (currentMode === 'compare') {
-    const a = document.getElementById('tokenA');
-    const b = document.getElementById('tokenB');
-    if (!a.value) a.value = id;
-    else if (!b.value) b.value = id;
-    else { a.value = id; b.value = ''; }
-  } else {
-    setMode('single');
-    document.getElementById('tokenInput').value = id;
-    run();
-  }
+    const a = document.getElementById('tokenA'), b = document.getElementById('tokenB');
+    if (!a.value) a.value = id; else if (!b.value) b.value = id; else { a.value = id; b.value = ''; }
+  } else { setMode('single'); document.getElementById('tokenInput').value = id; run(); }
 }
 
 // ---------------------------------------------------------
@@ -303,8 +378,7 @@ async function fetchTokenData(query) {
     const searchRes = await fetch(`https://api.coingecko.com/api/v3/search?query=${slug}`);
     const searchData = await searchRes.json();
     if (searchData.coins?.length > 0) {
-      const topId = searchData.coins[0].id;
-      res = await fetch(`https://api.coingecko.com/api/v3/coins/${topId}?localization=false&tickers=false&community_data=false&developer_data=false`);
+      res = await fetch(`https://api.coingecko.com/api/v3/coins/${searchData.coins[0].id}?localization=false&tickers=false&community_data=false&developer_data=false`);
     } else throw new Error('Token not found');
   }
   if (!res.ok) throw new Error('Token not found');
@@ -313,20 +387,12 @@ async function fetchTokenData(query) {
 
 function calculateRisk(m) {
   const change = m.price_change_percentage_24h ?? 0;
-  const volume = m.total_volume?.usd ?? 0;
-  const mcap = m.market_cap?.usd ?? 1;
-  const high = m.high_24h?.usd ?? 0;
-  const low = m.low_24h?.usd ?? 0;
-  const price = m.current_price?.usd ?? 0;
+  const volume = m.total_volume?.usd ?? 0, mcap = m.market_cap?.usd ?? 1;
+  const high = m.high_24h?.usd ?? 0, low = m.low_24h?.usd ?? 0, price = m.current_price?.usd ?? 0;
   const volatility = Math.min(Math.abs(change) * 2, 40);
   const volRatio = mcap > 0 ? volume / mcap : 0;
-  let liquidity;
-  if (volRatio < 0.02) liquidity = 30;
-  else if (volRatio < 0.05) liquidity = 20;
-  else if (volRatio < 0.10) liquidity = 10;
-  else liquidity = 5;
-  const range = high - low;
-  const position = range > 0 ? (price - low) / range : 0.5;
+  let liquidity = volRatio < 0.02 ? 30 : volRatio < 0.05 ? 20 : volRatio < 0.10 ? 10 : 5;
+  const range = high - low, position = range > 0 ? (price - low) / range : 0.5;
   const momentum = Math.abs(position - 0.5) * 60;
   const total = Math.min(Math.round(volatility + liquidity + momentum), 100);
   let level, color;
@@ -337,14 +403,9 @@ function calculateRisk(m) {
 }
 
 function generateFallbackSummary(risk) {
-  const sorted = Object.entries(risk.breakdown).sort((a, b) => b[1] - a[1]);
-  const [topFactor] = sorted[0];
-  const reasons = {
-    volatility: `a sharp 24h price move of ${risk.change.toFixed(2)}%`,
-    liquidity: `relatively thin trading volume (${(risk.volRatio * 100).toFixed(2)}% of market cap)`,
-    momentum: `price sitting near its 24h ${risk.position > 0.5 ? 'high' : 'low'}`
-  };
-  return `${risk.level} — primarily driven by ${reasons[topFactor]}.`;
+  const [topFactor] = Object.entries(risk.breakdown).sort((a,b) => b[1]-a[1]);
+  const reasons = { volatility: `a sharp 24h price move of ${risk.change.toFixed(2)}%`, liquidity: `relatively thin trading volume (${(risk.volRatio*100).toFixed(2)}% of market cap)`, momentum: `price sitting near its 24h ${risk.position > 0.5 ? 'high' : 'low'}` };
+  return `${risk.level} — primarily driven by ${reasons[topFactor[0]]}.`;
 }
 
 async function fetchAIInsight(payload) {
@@ -354,7 +415,7 @@ async function fetchAIInsight(payload) {
 }
 
 function iconHTML(data) {
-  const initials = data.symbol.substring(0, 3).toUpperCase();
+  const initials = data.symbol.substring(0,3).toUpperCase();
   const imageUrl = data.image?.small || data.image?.thumb || '';
   return imageUrl
     ? `<img src="${imageUrl}" alt="${data.symbol}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="token-icon-fallback" style="display:none">${initials}</span>`
@@ -362,41 +423,35 @@ function iconHTML(data) {
 }
 
 function priceStr(price) {
-  return price >= 1
-    ? '$' + price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-    : '$' + price.toFixed(6);
+  return price >= 1 ? '$' + price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) : '$' + price.toFixed(6);
 }
 
 // ---------------------------------------------------------
 // Single mode
 // ---------------------------------------------------------
 async function run() {
-  const input = document.getElementById('tokenInput');
-  const query = input.value.trim();
+  const query = document.getElementById('tokenInput').value.trim();
   if (!query) return;
   const out = document.getElementById('output');
   out.innerHTML = `<div class="card"><div class="loading">Fetching live data & calculating risk...</div></div>`;
   try {
     const data = await fetchTokenData(query);
-    const m = data.market_data;
-    const risk = calculateRisk(m);
+    const m = data.market_data, risk = calculateRisk(m);
     const fallback = generateFallbackSummary(risk);
     const isPos = (m.price_change_percentage_24h ?? 0) >= 0;
     const ps = priceStr(m.current_price.usd);
-    const inWatchlist = getWatchlist().find(t => t.id === data.id);
+    _lastData = data; _lastRisk = risk; _lastInsight = '';
+    const inWatchlist = !!getWatchlist().find(t => t.id === data.id);
 
     out.innerHTML = `
       <div class="card">
         <div class="token-header">
           <div class="token-icon">${iconHTML(data)}</div>
           <div style="flex:1"><div class="token-name">${data.name}</div><div class="token-symbol">${data.symbol}</div></div>
-          <button onclick="addToWatchlist(window._lastData, window._lastRisk)" style="background:transparent;border:1px solid var(--border);color:var(--text-dim);font-size:12px;padding:6px 12px;border-radius:8px;letter-spacing:0;font-weight:500" id="watchlistBtn">
-            ${inWatchlist ? '✓ Saved' : '+ Watchlist'}
-          </button>
         </div>
         <div class="price-row">
           <div class="price">${ps}</div>
-          <div class="change ${isPos ? 'pos' : 'neg'}">${isPos ? '+' : ''}${(m.price_change_percentage_24h ?? 0).toFixed(2)}% 24h</div>
+          <div class="change ${isPos?'pos':'neg'}">${isPos?'+':''}${(m.price_change_percentage_24h??0).toFixed(2)}% 24h</div>
         </div>
         <div class="score-section">
           <div class="score-ring" style="background:conic-gradient(${risk.color} ${risk.total*3.6}deg,#1f1f29 0deg)">
@@ -411,18 +466,9 @@ async function run() {
           </div>
         </div>
         <div class="breakdown-title">Score Breakdown</div>
-        <div class="bar-row">
-          <div class="bar-label"><span class="name">Volatility</span><span class="val">${risk.breakdown.volatility} / 40</span></div>
-          <div class="bar-track"><div class="bar-fill" style="width:${(risk.breakdown.volatility/40)*100}%;background:var(--accent)"></div></div>
-        </div>
-        <div class="bar-row">
-          <div class="bar-label"><span class="name">Liquidity Risk</span><span class="val">${risk.breakdown.liquidity} / 30</span></div>
-          <div class="bar-track"><div class="bar-fill" style="width:${(risk.breakdown.liquidity/30)*100}%;background:var(--accent)"></div></div>
-        </div>
-        <div class="bar-row">
-          <div class="bar-label"><span class="name">Momentum</span><span class="val">${risk.breakdown.momentum} / 30</span></div>
-          <div class="bar-track"><div class="bar-fill" style="width:${(risk.breakdown.momentum/30)*100}%;background:var(--accent)"></div></div>
-        </div>
+        <div class="bar-row"><div class="bar-label"><span class="name">Volatility</span><span class="val">${risk.breakdown.volatility} / 40</span></div><div class="bar-track"><div class="bar-fill" style="width:${(risk.breakdown.volatility/40)*100}%;background:var(--accent)"></div></div></div>
+        <div class="bar-row"><div class="bar-label"><span class="name">Liquidity Risk</span><span class="val">${risk.breakdown.liquidity} / 30</span></div><div class="bar-track"><div class="bar-fill" style="width:${(risk.breakdown.liquidity/30)*100}%;background:var(--accent)"></div></div></div>
+        <div class="bar-row"><div class="bar-label"><span class="name">Momentum</span><span class="val">${risk.breakdown.momentum} / 30</span></div><div class="bar-track"><div class="bar-fill" style="width:${(risk.breakdown.momentum/30)*100}%;background:var(--accent)"></div></div></div>
       </div>
       <div class="card ai-card">
         <div class="ai-header"><div class="ai-label"><span class="ai-dot"></span>AI Insight</div></div>
@@ -431,20 +477,18 @@ async function run() {
           <div class="ai-shimmer" style="width:85%"></div>
           <div class="ai-shimmer" style="width:60%"></div>
         </div>
+      </div>
+      <div class="action-row">
+        <button class="action-btn ${inWatchlist?'saved':''}" id="watchlistBtn" onclick="addToWatchlist()">${inWatchlist?'✓ Saved':'+ Watchlist'}</button>
+        <button class="action-btn" onclick="openShareModal()">Share Card 🔗</button>
       </div>`;
 
-    // Store for watchlist button
-    window._lastData = data;
-    window._lastRisk = risk;
-
-    // Update watchlist button after data loaded
-    const btn = document.getElementById('watchlistBtn');
-    if (btn && inWatchlist) { btn.textContent = '✓ Saved'; btn.style.color = 'var(--green)'; btn.style.borderColor = 'var(--green)'; }
-
     try {
-      const ai = await fetchAIInsight({ name: data.name, symbol: data.symbol, price: ps, change24h: (m.price_change_percentage_24h ?? 0).toFixed(2), riskScore: risk.total, riskLevel: risk.level, breakdown: risk.breakdown, fallback });
+      const ai = await fetchAIInsight({ name: data.name, symbol: data.symbol, price: ps, change24h: (m.price_change_percentage_24h??0).toFixed(2), riskScore: risk.total, riskLevel: risk.level, breakdown: risk.breakdown, fallback });
+      _lastInsight = ai.insight;
       document.getElementById('aiText').innerHTML = `<div class="ai-text">${ai.insight}</div>`;
     } catch (e) {
+      _lastInsight = fallback;
       document.getElementById('aiText').innerHTML = `<div class="ai-text dim">${fallback}</div>`;
     }
   } catch (e) {
@@ -452,82 +496,48 @@ async function run() {
   }
 }
 
-// Override addToWatchlist to also update button state
-const _origAdd = addToWatchlist;
-window.addToWatchlist = function(data, risk) {
-  _origAdd(data, risk);
-  const btn = document.getElementById('watchlistBtn');
-  if (btn) { btn.textContent = '✓ Saved'; btn.style.color = 'var(--green)'; btn.style.borderColor = 'var(--green)'; }
-};
-
 // ---------------------------------------------------------
 // Compare mode
 // ---------------------------------------------------------
 async function runCompare() {
-  const qA = document.getElementById('tokenA').value.trim();
-  const qB = document.getElementById('tokenB').value.trim();
+  const qA = document.getElementById('tokenA').value.trim(), qB = document.getElementById('tokenB').value.trim();
   if (!qA || !qB) { document.getElementById('output').innerHTML = `<div class="card"><div class="error">Please enter both tokens to compare.</div></div>`; return; }
   const out = document.getElementById('output');
   out.innerHTML = `<div class="card"><div class="loading">Comparing tokens...</div></div>`;
   try {
     const [dataA, dataB] = await Promise.all([fetchTokenData(qA), fetchTokenData(qB)]);
-    const riskA = calculateRisk(dataA.market_data);
-    const riskB = calculateRisk(dataB.market_data);
+    const riskA = calculateRisk(dataA.market_data), riskB = calculateRisk(dataB.market_data);
     const winnerIsA = riskA.total <= riskB.total;
-
     function compareCard(data, risk, isWinner) {
-      const initials = data.symbol.substring(0, 3).toUpperCase();
-      const imageUrl = data.image?.small || '';
-      const imgHTML = imageUrl ? `<img src="${imageUrl}" alt="${data.symbol}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">` : initials;
-      return `
-        <div class="compare-card ${isWinner ? 'winner' : 'loser'}">
-          <div class="compare-token-header">
-            <div class="compare-icon">${imgHTML}</div>
-            <div><div class="compare-name">${data.name}</div><div class="compare-symbol">${data.symbol}</div></div>
-          </div>
-          <div class="compare-score-big" style="color:${risk.color}">${risk.total}</div>
-          <div class="compare-level" style="color:${risk.color}">${risk.level}</div>
-          <div class="compare-bar-row">
-            <div class="compare-bar-label"><span>Volatility</span><span>${risk.breakdown.volatility}/40</span></div>
-            <div class="compare-bar-track"><div class="compare-bar-fill" style="width:${(risk.breakdown.volatility/40)*100}%;background:var(--accent)"></div></div>
-          </div>
-          <div class="compare-bar-row">
-            <div class="compare-bar-label"><span>Liquidity</span><span>${risk.breakdown.liquidity}/30</span></div>
-            <div class="compare-bar-track"><div class="compare-bar-fill" style="width:${(risk.breakdown.liquidity/30)*100}%;background:var(--accent)"></div></div>
-          </div>
-          <div class="compare-bar-row">
-            <div class="compare-bar-label"><span>Momentum</span><span>${risk.breakdown.momentum}/30</span></div>
-            <div class="compare-bar-track"><div class="compare-bar-fill" style="width:${(risk.breakdown.momentum/30)*100}%;background:var(--accent)"></div></div>
-          </div>
-          ${isWinner ? '<div style="margin-top:10px;font-size:11px;color:var(--green);font-weight:500">✓ Lower risk</div>' : ''}
-        </div>`;
+      const initials = data.symbol.substring(0,3).toUpperCase();
+      const imgHTML = data.image?.small ? `<img src="${data.image.small}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">` : initials;
+      return `<div class="compare-card ${isWinner?'winner':'loser'}">
+        <div class="compare-token-header"><div class="compare-icon">${imgHTML}</div><div><div class="compare-name">${data.name}</div><div class="compare-symbol">${data.symbol}</div></div></div>
+        <div class="compare-score-big" style="color:${risk.color}">${risk.total}</div>
+        <div class="compare-level" style="color:${risk.color}">${risk.level}</div>
+        <div class="compare-bar-row"><div class="compare-bar-label"><span>Volatility</span><span>${risk.breakdown.volatility}/40</span></div><div class="compare-bar-track"><div class="compare-bar-fill" style="width:${(risk.breakdown.volatility/40)*100}%;background:var(--accent)"></div></div></div>
+        <div class="compare-bar-row"><div class="compare-bar-label"><span>Liquidity</span><span>${risk.breakdown.liquidity}/30</span></div><div class="compare-bar-track"><div class="compare-bar-fill" style="width:${(risk.breakdown.liquidity/30)*100}%;background:var(--accent)"></div></div></div>
+        <div class="compare-bar-row"><div class="compare-bar-label"><span>Momentum</span><span>${risk.breakdown.momentum}/30</span></div><div class="compare-bar-track"><div class="compare-bar-fill" style="width:${(risk.breakdown.momentum/30)*100}%;background:var(--accent)"></div></div></div>
+        ${isWinner ? '<div style="margin-top:10px;font-size:11px;color:var(--green);font-weight:500">✓ Lower risk</div>' : ''}
+      </div>`;
     }
-
     const diff = Math.abs(riskA.total - riskB.total);
-    const safer = winnerIsA ? dataA.name : dataB.name;
-    const riskier = winnerIsA ? dataB.name : dataA.name;
-    const saferRisk = winnerIsA ? riskA : riskB;
-    const riskierRisk = winnerIsA ? riskB : riskA;
+    const safer = winnerIsA ? dataA.name : dataB.name, riskier = winnerIsA ? dataB.name : dataA.name;
+    const saferRisk = winnerIsA ? riskA : riskB, riskierRisk = winnerIsA ? riskB : riskA;
     const dominant = diff > 20 ? 'significantly' : diff > 10 ? 'moderately' : 'slightly';
     const verdict = diff === 0
       ? `<strong>${dataA.name}</strong> and <strong>${dataB.name}</strong> share an identical risk score right now.`
       : `<strong>${safer}</strong> is ${dominant} safer right now (${saferRisk.total} vs ${riskierRisk.total}). <strong>${riskier}</strong>'s higher score is driven by ${Object.entries(riskierRisk.breakdown).sort((a,b)=>b[1]-a[1])[0][0]}.`;
-
-    out.innerHTML = `
-      <div class="compare-grid">
-        ${compareCard(dataA, riskA, winnerIsA)}
-        ${compareCard(dataB, riskB, !winnerIsA)}
-      </div>
-      <div class="compare-verdict">${verdict}</div>`;
+    out.innerHTML = `<div class="compare-grid">${compareCard(dataA,riskA,winnerIsA)}${compareCard(dataB,riskB,!winnerIsA)}</div><div class="compare-verdict">${verdict}</div>`;
   } catch (e) {
-    out.innerHTML = `<div class="card"><div class="error">${e.message || 'Something went wrong'}. Check both token names.</div></div>`;
+    out.innerHTML = `<div class="card"><div class="error">${e.message||'Something went wrong'}. Check both token names.</div></div>`;
   }
 }
 
 // ---------------------------------------------------------
-// Live usage counter
+// Live usage counter + init
 // ---------------------------------------------------------
-(async function loadStats() {
+(async function init() {
   try {
     const res = await fetch('/api/stats');
     const data = await res.json();
