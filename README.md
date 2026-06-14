@@ -27,8 +27,8 @@ PulseGuard turns live market data into a **0-100 risk score** using three weight
 Each score comes with an AI-generated trader insight from **Qwen**, with a graceful rule-based fallback so the tool never breaks without an API key.
 
 Available as:
-- 🖥️ **Dashboard** - visual risk reading with Compare mode, Watchlist, and Share cards
-- 🔌 **Free public API** - structured JSON, no auth required, plug-and-play for any agent
+- 🖥️ **Dashboard**: visual risk reading with Compare mode, Watchlist, and Share cards
+- 🔌 **Free public API**: structured JSON, no auth required, plug-and-play for any agent
 
 ---
 
