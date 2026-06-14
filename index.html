@@ -347,6 +347,31 @@
   .momentum-row { display: flex; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 8px; }
   .momentum-label { font-size: 12px; color: var(--text-dim); }
 
+
+  /* Pre-Trade */
+  .pretrade-inputs { display:none; }
+  .pretrade-inputs.show { display:block; }
+  .pretrade-result { background:var(--card); border:1px solid var(--border2); border-radius:20px; padding:22px; margin-bottom:14px; position:relative; overflow:hidden; }
+  .pretrade-result::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--accent),transparent); opacity:0.4; }
+  .pretrade-header { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+  .pretrade-score-section { display:flex; align-items:center; gap:16px; margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid var(--border); }
+  .pretrade-score-num { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:52px; line-height:1; }
+  .pretrade-level { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:20px; letter-spacing:0.5px; }
+  .pretrade-position { background:var(--surface); border:1px solid var(--border2); border-radius:14px; padding:16px; margin-bottom:14px; }
+  .pretrade-position-title { font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-dim); font-weight:600; margin-bottom:12px; }
+  .pretrade-position-row { display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px; }
+  .pretrade-position-label { color:var(--text-dim); }
+  .pretrade-position-val { font-weight:600; }
+  .pretrade-warning { background:rgba(255,79,106,0.08); border:1px solid rgba(255,79,106,0.2); border-radius:10px; padding:12px 14px; font-size:13px; color:var(--red); margin-top:10px; line-height:1.5; }
+  .flags-title { font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-dim); font-weight:600; margin-bottom:12px; }
+  .flag { display:flex; align-items:flex-start; gap:8px; font-size:13px; margin-bottom:8px; line-height:1.5; padding:10px 12px; border-radius:10px; }
+  .flag.high { background:rgba(255,79,106,0.06); border:1px solid rgba(255,79,106,0.15); color:var(--text-mid); }
+  .flag.medium { background:rgba(245,197,66,0.06); border:1px solid rgba(245,197,66,0.15); color:var(--text-mid); }
+  .flag.low { background:rgba(34,216,122,0.06); border:1px solid rgba(34,216,122,0.15); color:var(--text-mid); }
+  .flag-icon { flex-shrink:0; font-size:14px; }
+  .verdict-card { background:linear-gradient(135deg,rgba(124,109,250,0.07),rgba(167,139,250,0.03)); border:1px solid rgba(124,109,250,0.2); border-radius:16px; padding:18px; margin-top:14px; }
+  .verdict-label { font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:var(--accent2); font-weight:600; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+  .verdict-text { font-size:14px; line-height:1.75; color:var(--text); }
 </style>
 </head>
 <body>
@@ -361,7 +386,7 @@
       </div>
       <div class="stats-badge" id="statsBadge"></div>
     </div>
-    <div class="header-sub">Real-time Risk Intelligence API for Crypto Trading</div>
+    <div class="header-sub">Real-time Risk Intelligence API for Crypto Trading &nbsp;·&nbsp; <a href="/docs.html" style="color:var(--accent2);text-decoration:none;font-size:13px">API Docs ↗</a></div>
   </div>
 
   <!-- Mode tabs -->
@@ -369,6 +394,7 @@
     <div class="mode-tab active" id="tabSingle" onclick="setMode('single')">Single Token</div>
     <div class="mode-tab" id="tabCompare" onclick="setMode('compare')">Compare</div>
     <div class="mode-tab" id="tabWatchlist" onclick="setMode('watchlist')">Watchlist</div>
+    <div class="mode-tab" id="tabPretrade" onclick="setMode('pretrade')">Pre-Trade</div>
   </div>
 
   <!-- Quick picks -->
@@ -401,6 +427,18 @@
   </div>
   <div class="compare-btn-row" id="compareBtnRow">
     <button class="check-btn" onclick="runCompare()" style="width:100%">Compare Tokens</button>
+  </div>
+
+  <!-- Pre-Trade inputs -->
+  <div class="pretrade-inputs" id="pretradeInputs">
+    <div class="search-row" style="margin-bottom:8px">
+      <div class="search-wrap"><input id="pretradeToken" type="text" placeholder="Token — e.g. solana, bonk..."></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <div class="search-wrap" style="flex:1"><input id="pretradeAmount" type="number" placeholder="Trade amount (USD) — optional"></div>
+      <div class="search-wrap" style="flex:1"><input id="pretradePortfolio" type="number" placeholder="Portfolio size (USD) — optional"></div>
+    </div>
+    <button class="check-btn" onclick="runPretrade()" style="width:100%;margin-bottom:16px">Check Risk Before Trading</button>
   </div>
 
   <!-- Watchlist section -->
@@ -586,13 +624,19 @@ function copyShareText() {
 // ── Mode switching ──
 function setMode(mode) {
   currentMode = mode;
-  ['single','compare','watchlist'].forEach(m => {
+  ['single','compare','watchlist','pretrade'].forEach(m => {
     const id = 'tab' + m.charAt(0).toUpperCase() + m.slice(1);
     document.getElementById(id)?.classList.toggle('active', m === mode);
   });
   document.getElementById('singleInput').style.display = mode === 'single' ? 'flex' : 'none';
   document.getElementById('compareInputs').classList.toggle('show', mode === 'compare');
   document.getElementById('compareBtnRow').classList.toggle('show', mode === 'compare');
+  document.getElementById('pretradeInputs').classList.toggle('show', mode === 'pretrade');
+
+  if (mode === 'pretrade') {
+    document.getElementById('output').innerHTML = `<div class="empty-state"><span class="empty-icon">🛡️</span><div class="empty-title">Pre-Trade Risk Check</div><div class="empty-desc">Enter a token and optional trade size above — PulseGuard will analyze risk flags, position sizing, and give you an AI-powered recommendation before you pull the trigger.</div></div>`;
+    return;
+  }
   if (mode === 'watchlist') {
     renderWatchlist();
     const list = getWatchlist();
