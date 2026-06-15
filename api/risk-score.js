@@ -115,14 +115,19 @@ function getRedisConfig() {
 
 async function incrementUsageCounter() {
   const { url, token } = getRedisConfig();
-  if (!url || !token) return;
+  if (!url || !token) {
+    console.error('[PulseGuard] Redis not configured - missing URL or token');
+    return;
+  }
   try {
-    await fetch(`${url}/incr/pg:total_checks`, {
+    const r = await fetch(`${url}/incr/pg:total_checks`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` }
     });
+    const d = await r.json();
+    console.log('[PulseGuard] Counter incremented:', JSON.stringify(d));
   } catch (e) {
-    // non-critical
+    console.error('[PulseGuard] Counter error:', e.message);
   }
 }
 
@@ -140,7 +145,7 @@ async function saveRiskHistory(tokenId, score, level, price) {
       ['ltrim', key, 0, 9],
       ['expire', key, 604800]
     ];
-    await fetch(`${url}/pipeline`, {
+    const r = await fetch(`${url}/pipeline`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -148,8 +153,10 @@ async function saveRiskHistory(tokenId, score, level, price) {
       },
       body: JSON.stringify(pipeline)
     });
+    const d = await r.json();
+    console.log('[PulseGuard] History saved for', tokenId, ':', JSON.stringify(d));
   } catch (e) {
-    // non-critical — never break the main response
+    console.error('[PulseGuard] History save error:', e.message);
   }
 }
 
