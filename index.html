@@ -369,12 +369,17 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       </div>
       <div class="api-endpoint" onclick="window.open('https://pulseguard-two.vercel.app/api/pretrade','_blank')">
         <div class="api-method">POST</div>
-        <div class="api-path">/api/pretrade</div>
+        <div class="api-path">/api/pretrade — pre-trade risk check</div>
+        <div class="api-arrow">↗</div>
+      </div>
+      <div class="api-endpoint" onclick="window.open('https://pulseguard-two.vercel.app/api/history?token=solana','_blank')">
+        <div class="api-method">GET</div>
+        <div class="api-path">/api/history?token=solana — last 10 risk snapshots</div>
         <div class="api-arrow">↗</div>
       </div>
       <div class="api-endpoint" onclick="window.open('https://pulseguard-two.vercel.app/api/stats','_blank')">
         <div class="api-method">GET</div>
-        <div class="api-path">/api/stats</div>
+        <div class="api-path">/api/stats — total checks performed</div>
         <div class="api-arrow">↗</div>
       </div>
     </div>
