@@ -1,23 +1,27 @@
 /**
  * PulseGuard Stats API
- * -----------------------------------------
  * GET /api/stats
- *
- * Returns the total number of risk checks performed across
- * all PulseGuard users powers the live counter on the dashboard
- * and serves as a verifiable usage metric.
- *
- * Response: { total_checks: number | null }
+ * Returns total risk checks performed — powered by Upstash Redis counter.
  */
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
 
+  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (!url || !token) {
+    return res.status(200).json({ total_checks: 0, note: 'Storage not configured' });
+  }
+
   try {
-    const response = await fetch('https://api.countapi.xyz/get/sketchify-pulseguard/risk-checks');
+    const response = await fetch(`${url}/get/pg:total_checks`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
     const data = await response.json();
-    return res.status(200).json({ total_checks: data.value ?? 0 });
+    const total = parseInt(data.result) || 0;
+    return res.status(200).json({ total_checks: total });
   } catch (e) {
-    return res.status(200).json({ total_checks: null });
+    return res.status(200).json({ total_checks: 0 });
   }
 }
