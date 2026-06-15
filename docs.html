@@ -299,4 +299,191 @@
 POST /api/pretrade<br>
 Content-Type: application/json<br><br>
 {<br>
-&nbsp;&nbsp;<span class="json-key">"token"</span>: <span class="json-str">"so
+&nbsp;&nbsp;<span class="json-key">"token"</span>: <span class="json-str">"solana"</span>,<br>
+&nbsp;&nbsp;<span class="json-key">"amount"</span>: <span class="json-num">500</span>,<br>
+&nbsp;&nbsp;<span class="json-key">"portfolio_value"</span>: <span class="json-num">5000</span><br>
+}
+        </div>
+        <div class="code-label" style="margin-top:14px">Response</div>
+        <div class="code-block">
+{<br>
+&nbsp;&nbsp;<span class="json-key">"token"</span>: { <span class="json-key">"name"</span>: <span class="json-str">"Solana"</span>, <span class="json-key">"symbol"</span>: <span class="json-str">"sol"</span> },<br>
+&nbsp;&nbsp;<span class="json-key">"risk_score"</span>: <span class="json-num">43</span>,<br>
+&nbsp;&nbsp;<span class="json-key">"risk_level"</span>: <span class="json-str">"Medium"</span>,<br>
+&nbsp;&nbsp;<span class="json-key">"position_check"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"entered_pct"</span>: <span class="json-num">10</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"max_allocation_pct"</span>: <span class="json-num">10</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"over_exposed"</span>: <span class="json-bool">false</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"warning"</span>: <span class="json-bool">null</span><br>
+&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;<span class="json-key">"flags"</span>: [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="json-key">"severity"</span>: <span class="json-str">"medium"</span>, <span class="json-key">"message"</span>: <span class="json-str">"Below-average liquidity..."</span> }<br>
+&nbsp;&nbsp;],<br>
+&nbsp;&nbsp;<span class="json-key">"ai_verdict"</span>: <span class="json-str">"Position sizing looks acceptable..."</span><br>
+}
+        </div>
+      </div>
+    </div>
+
+    <!-- History -->
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <div class="method get">GET</div>
+        <div class="endpoint-path">/api/history</div>
+        <div class="endpoint-desc">Risk score timeline</div>
+      </div>
+      <div class="endpoint-body">
+        <div class="param-title">Query Parameters</div>
+        <div class="param-row">
+          <span class="param-name">token</span>
+          <span class="param-type">string</span>
+          <span class="required">required</span>
+          <span class="param-desc">Token CoinGecko ID. Returns last 10 risk snapshots saved when /api/risk-score was called.</span>
+        </div>
+        <div class="code-label">Example Request</div>
+        <div class="code-block">GET /api/history?token=solana</div>
+        <div class="code-label" style="margin-top:14px">Response</div>
+        <div class="code-block">
+{<br>
+&nbsp;&nbsp;<span class="json-key">"token"</span>: <span class="json-str">"solana"</span>,<br>
+&nbsp;&nbsp;<span class="json-key">"history"</span>: [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="json-key">"score"</span>: <span class="json-num">43</span>, <span class="json-key">"level"</span>: <span class="json-str">"Medium"</span>, <span class="json-key">"price"</span>: <span class="json-num">68.14</span>, <span class="json-key">"timestamp"</span>: <span class="json-num">1718870400000</span> },<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="json-key">"score"</span>: <span class="json-num">38</span>, <span class="json-key">"level"</span>: <span class="json-str">"Medium"</span>, <span class="json-key">"price"</span>: <span class="json-num">65.20</span>, <span class="json-key">"timestamp"</span>: <span class="json-num">1718784000000</span> }<br>
+&nbsp;&nbsp;],<br>
+&nbsp;&nbsp;<span class="json-key">"momentum"</span>: { <span class="json-key">"delta"</span>: <span class="json-num">5</span>, <span class="json-key">"trend"</span>: <span class="json-str">"rising"</span>, <span class="json-key">"label"</span>: <span class="json-str">"▲ +5 Rising"</span> }<br>
+}
+        </div>
+        <a class="try-btn" href="/api/history?token=solana" target="_blank">↗ Try it live</a>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <div class="method get">GET</div>
+        <div class="endpoint-path">/api/stats</div>
+        <div class="endpoint-desc">Usage statistics</div>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-label">Response</div>
+        <div class="code-block">{ <span class="json-key">"total_checks"</span>: <span class="json-num">142</span> }</div>
+        <a class="try-btn" href="/api/stats" target="_blank">↗ Try it live</a>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Risk Score -->
+  <div class="section">
+    <div class="section-title">Risk Score Formula</div>
+    <div class="section-desc">Every score is calculated from three weighted signals derived from live CoinGecko market data. No black box — fully transparent and reproducible.</div>
+    <div class="endpoint">
+      <div class="endpoint-body">
+        <div class="param-row"><span class="param-name" style="color:var(--accent2)">Volatility</span><span class="param-type">weight: 40%</span><span class="param-desc">Absolute 24h price change × 2, capped at 40. Larger swings = higher score.</span></div>
+        <div class="param-row"><span class="param-name" style="color:var(--accent2)">Liquidity</span><span class="param-type">weight: 30%</span><span class="param-desc">24h volume / market cap ratio. Thinner liquidity = harder to exit = higher score.</span></div>
+        <div class="param-row"><span class="param-name" style="color:var(--accent2)">Momentum</span><span class="param-type">weight: 30%</span><span class="param-desc">Price position within its 24h range. Near extremes = closer to reversal = higher score.</span></div>
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:13px;color:var(--text-dim)">
+          <strong style="color:var(--text-mid)">Score Levels:</strong> &nbsp;
+          <span style="color:var(--green)">Low Risk (0–33)</span> &nbsp;·&nbsp;
+          <span style="color:var(--yellow)">Medium Risk (34–66)</span> &nbsp;·&nbsp;
+          <span style="color:var(--red)">High Risk (67–100)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="footer">
+    Built by <a href="https://x.com/0xSketchify" target="_blank">@0xSketchify</a> · Sketchify Labs<br>
+    Bitget AI Hackathon — Trading Infrastructure Track · June 2026<br><br>
+    <a href="/">← Back to Dashboard</a>
+  </div>
+
+</div>
+<script>
+
+// ── API Playground ──
+var pgCurrentTab = 'get';
+
+function pgSetTab(tab) {
+  pgCurrentTab = tab;
+  document.querySelectorAll('.pg-tab').forEach(function(t, i) {
+    t.classList.toggle('active', (tab === 'get' && i === 0) || (tab === 'post' && i === 1));
+  });
+  document.getElementById('pgGetPanel').style.display = tab === 'get' ? 'block' : 'none';
+  document.getElementById('pgPostPanel').style.display = tab === 'post' ? 'block' : 'none';
+  document.getElementById('pgResponse').classList.remove('show');
+}
+
+function pgSetUrl(url) {
+  document.getElementById('pgUrlInput').value = url;
+}
+
+function pgSetBody(body) {
+  document.getElementById('pgBodyInput').value = body;
+}
+
+function pgSyntaxHighlight(json) {
+  var str = JSON.stringify(json, null, 2);
+  return str
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"([^"]+)":/g, '<span style="color:#a78bfa">"$1"</span>:')
+    .replace(/: "([^"]*)"/g, ': <span style="color:#22d87a">"$1"</span>')
+    .replace(/: (-?\d+\.?\d*)/g, ': <span style="color:#f5c542">$1</span>')
+    .replace(/: (true|false)/g, ': <span style="color:#ff4f6a">$1</span>')
+    .replace(/: (null)/g, ': <span style="color:#7b7b9d">$1</span>');
+}
+
+function pgShowResponse(ok, statusText, data, ms) {
+  var el = document.getElementById('pgResponse');
+  el.innerHTML =
+    '<div class="pg-status">' +
+      '<div class="pg-status-dot ' + (ok ? 'ok' : 'err') + '"></div>' +
+      '<span style="color:' + (ok ? '#22d87a' : '#ff4f6a') + ';font-weight:600">' + statusText + '</span>' +
+      '<span style="color:#7b7b9d;margin-left:auto">' + ms + 'ms</span>' +
+    '</div>' +
+    pgSyntaxHighlight(data);
+  el.classList.add('show');
+}
+
+async function pgSend() {
+  var path = document.getElementById('pgUrlInput').value.trim();
+  if (!path) return;
+  var el = document.getElementById('pgResponse');
+  el.innerHTML = '<div class="pg-loading">Sending request...</div>';
+  el.classList.add('show');
+  var start = Date.now();
+  try {
+    var res = await fetch(path);
+    var data = await res.json();
+    pgShowResponse(res.ok, res.status + ' ' + (res.ok ? 'OK' : 'Error'), data, Date.now() - start);
+  } catch(e) {
+    el.innerHTML = '<div class="pg-loading" style="color:#ff4f6a">⚠️ ' + e.message + '</div>';
+  }
+}
+
+async function pgSendPost() {
+  var body = document.getElementById('pgBodyInput').value.trim();
+  var el = document.getElementById('pgResponse');
+  el.innerHTML = '<div class="pg-loading">Sending request...</div>';
+  el.classList.add('show');
+  var start = Date.now();
+  try {
+    var parsed = JSON.parse(body);
+    var res = await fetch('/api/pretrade', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(parsed)
+    });
+    var data = await res.json();
+    pgShowResponse(res.ok, res.status + ' ' + (res.ok ? 'OK' : 'Error'), data, Date.now() - start);
+  } catch(e) {
+    el.innerHTML = '<div class="pg-loading" style="color:#ff4f6a">⚠️ ' + (e.message.includes('JSON') ? 'Invalid JSON body' : e.message) + '</div>';
+  }
+}
+
+</script>
+</body>
+</html>
