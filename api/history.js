@@ -18,12 +18,20 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await fetch(`${url}/lrange/pg:history:${token}/0/9`, {
-      headers: { Authorization: `Bearer ${authToken}` }
+    const response = await fetch(`${url}/pipeline`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify([['lrange', `pg:history:${token}`, 0, 9]])
     });
+
     const data = await response.json();
-    const history = (data.result || []).map(item => {
-      try { return JSON.parse(item); } catch { return null; }
+    const raw = data[0]?.result || [];
+    const history = raw.map(item => {
+      try { return typeof item === 'string' ? JSON.parse(item) : item; }
+      catch { return null; }
     }).filter(Boolean);
 
     const momentum = calculateMomentum(history);
