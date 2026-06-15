@@ -79,6 +79,34 @@
   .divider { border:none; border-top:1px solid var(--border); margin:40px 0; }
   .footer { text-align:center; font-size:12px; color:var(--text-dim); line-height:1.8; }
   .footer a { color:var(--accent2); text-decoration:none; }
+
+  /* API Playground */
+  .playground { background: var(--surface); border: 1px solid var(--border2); border-radius: 20px; padding: 24px; margin-bottom: 32px; }
+  .playground-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 22px; margin-bottom: 6px; }
+  .playground-desc { font-size: 13px; color: var(--text-dim); margin-bottom: 20px; }
+  .playground-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .pg-method { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; padding: 12px 16px; border-radius: 10px; background: rgba(34,216,122,0.12); color: var(--green); border: 1px solid rgba(34,216,122,0.25); flex-shrink: 0; display: flex; align-items: center; }
+  .pg-method.post { background: rgba(124,109,250,0.12); color: var(--accent2); border-color: rgba(124,109,250,0.25); }
+  .pg-input { flex: 1; min-width: 200px; background: var(--card); border: 1px solid var(--border2); border-radius: 10px; padding: 12px 16px; color: var(--text); font-family: monospace; font-size: 13px; outline: none; }
+  .pg-input:focus { border-color: var(--accent); }
+  .pg-btn { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; border: none; border-radius: 10px; padding: 12px 20px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; cursor: pointer; letter-spacing: 0.5px; white-space: nowrap; }
+  .pg-btn:active { opacity: 0.85; }
+  .pg-presets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .pg-preset { font-size: 12px; padding: 5px 12px; border-radius: 8px; border: 1px solid var(--border2); background: var(--card); color: var(--text-dim); cursor: pointer; font-family: monospace; transition: all 0.15s; }
+  .pg-preset:hover { border-color: var(--accent); color: var(--accent2); }
+  .pg-response { background: var(--bg); border: 1px solid var(--border2); border-radius: 12px; padding: 16px; font-family: monospace; font-size: 12px; line-height: 1.8; overflow-x: auto; max-height: 400px; overflow-y: auto; display: none; }
+  .pg-response.show { display: block; }
+  .pg-status { font-size: 12px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .pg-status-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .pg-status-dot.ok { background: var(--green); }
+  .pg-status-dot.err { background: var(--red); }
+  .pg-loading { text-align: center; color: var(--text-dim); font-size: 13px; padding: 20px; }
+  .pg-tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+  .pg-tab { padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--text-dim); border: 1px solid var(--border2); background: var(--card); transition: all 0.15s; }
+  .pg-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .pg-body-input { width: 100%; background: var(--card); border: 1px solid var(--border2); border-radius: 10px; padding: 12px 16px; color: var(--text); font-family: monospace; font-size: 12px; outline: none; resize: vertical; min-height: 80px; margin-bottom: 12px; display: none; }
+  .pg-body-input.show { display: block; }
+
 </style>
 </head>
 <body>
@@ -116,6 +144,53 @@
   </div>
 
   <hr class="divider">
+
+
+  <!-- API Playground -->
+  <div class="playground">
+    <div class="playground-title">🧪 API Playground</div>
+    <div class="playground-desc">Test any PulseGuard endpoint live — no auth, no setup. Results appear instantly below.</div>
+
+    <div class="pg-tabs">
+      <div class="pg-tab active" onclick="pgSetTab('get')">GET endpoints</div>
+      <div class="pg-tab" onclick="pgSetTab('post')">POST /api/pretrade</div>
+    </div>
+
+    <!-- GET panel -->
+    <div id="pgGetPanel">
+      <div class="pg-presets">
+        <span class="pg-preset" onclick="pgSetUrl('/api/risk-score?token=solana')">/api/risk-score?token=solana</span>
+        <span class="pg-preset" onclick="pgSetUrl('/api/risk-score?token=bitcoin')">/api/risk-score?token=bitcoin</span>
+        <span class="pg-preset" onclick="pgSetUrl('/api/risk-score?token=bonk')">/api/risk-score?token=bonk</span>
+        <span class="pg-preset" onclick="pgSetUrl('/api/risk-score?tokens=solana,bitcoin,ethereum')">/api/risk-score?tokens=solana,bitcoin,ethereum</span>
+        <span class="pg-preset" onclick="pgSetUrl('/api/history?token=solana')">/api/history?token=solana</span>
+        <span class="pg-preset" onclick="pgSetUrl('/api/stats')">/api/stats</span>
+      </div>
+      <div class="playground-row">
+        <div class="pg-method">GET</div>
+        <input class="pg-input" id="pgUrlInput" type="text" value="/api/risk-score?token=solana" placeholder="/api/risk-score?token=solana" onkeydown="if(event.key==='Enter')pgSend()">
+        <button class="pg-btn" onclick="pgSend()">Send ↗</button>
+      </div>
+    </div>
+
+    <!-- POST panel -->
+    <div id="pgPostPanel" style="display:none">
+      <div class="pg-presets">
+        <span class="pg-preset" onclick="pgSetBody('{"token":"solana"}')">{token: solana}</span>
+        <span class="pg-preset" onclick="pgSetBody('{"token":"bitcoin","amount":500,"portfolio_value":5000}')">{token: bitcoin, amount: 500, portfolio: 5000}</span>
+        <span class="pg-preset" onclick="pgSetBody('{"token":"bonk","amount":100,"portfolio_value":1000}')">{token: bonk, amount: 100, portfolio: 1000}</span>
+      </div>
+      <textarea class="pg-body-input show" id="pgBodyInput" placeholder='{"token": "solana", "amount": 500, "portfolio_value": 5000}'>{"token": "solana"}</textarea>
+      <div class="playground-row">
+        <div class="pg-method post">POST</div>
+        <div class="pg-input" style="display:flex;align-items:center;color:var(--text-dim)">/api/pretrade</div>
+        <button class="pg-btn" onclick="pgSendPost()">Send ↗</button>
+      </div>
+    </div>
+
+    <!-- Response -->
+    <div class="pg-response" id="pgResponse"></div>
+  </div>
 
   <!-- Endpoints -->
   <div class="section">
@@ -224,108 +299,4 @@
 POST /api/pretrade<br>
 Content-Type: application/json<br><br>
 {<br>
-&nbsp;&nbsp;<span class="json-key">"token"</span>: <span class="json-str">"solana"</span>,<br>
-&nbsp;&nbsp;<span class="json-key">"amount"</span>: <span class="json-num">500</span>,<br>
-&nbsp;&nbsp;<span class="json-key">"portfolio_value"</span>: <span class="json-num">5000</span><br>
-}
-        </div>
-        <div class="code-label" style="margin-top:14px">Response</div>
-        <div class="code-block">
-{<br>
-&nbsp;&nbsp;<span class="json-key">"token"</span>: { <span class="json-key">"name"</span>: <span class="json-str">"Solana"</span>, <span class="json-key">"symbol"</span>: <span class="json-str">"sol"</span> },<br>
-&nbsp;&nbsp;<span class="json-key">"risk_score"</span>: <span class="json-num">43</span>,<br>
-&nbsp;&nbsp;<span class="json-key">"risk_level"</span>: <span class="json-str">"Medium"</span>,<br>
-&nbsp;&nbsp;<span class="json-key">"position_check"</span>: {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"entered_pct"</span>: <span class="json-num">10</span>,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"max_allocation_pct"</span>: <span class="json-num">10</span>,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"over_exposed"</span>: <span class="json-bool">false</span>,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"warning"</span>: <span class="json-bool">null</span><br>
-&nbsp;&nbsp;},<br>
-&nbsp;&nbsp;<span class="json-key">"flags"</span>: [<br>
-&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="json-key">"severity"</span>: <span class="json-str">"medium"</span>, <span class="json-key">"message"</span>: <span class="json-str">"Below-average liquidity..."</span> }<br>
-&nbsp;&nbsp;],<br>
-&nbsp;&nbsp;<span class="json-key">"ai_verdict"</span>: <span class="json-str">"Position sizing looks acceptable..."</span><br>
-}
-        </div>
-      </div>
-    </div>
-
-    <!-- History -->
-    <div class="endpoint">
-      <div class="endpoint-header">
-        <div class="method get">GET</div>
-        <div class="endpoint-path">/api/history</div>
-        <div class="endpoint-desc">Risk score timeline</div>
-      </div>
-      <div class="endpoint-body">
-        <div class="param-title">Query Parameters</div>
-        <div class="param-row">
-          <span class="param-name">token</span>
-          <span class="param-type">string</span>
-          <span class="required">required</span>
-          <span class="param-desc">Token CoinGecko ID. Returns last 10 risk snapshots saved when /api/risk-score was called.</span>
-        </div>
-        <div class="code-label">Example Request</div>
-        <div class="code-block">GET /api/history?token=solana</div>
-        <div class="code-label" style="margin-top:14px">Response</div>
-        <div class="code-block">
-{<br>
-&nbsp;&nbsp;<span class="json-key">"token"</span>: <span class="json-str">"solana"</span>,<br>
-&nbsp;&nbsp;<span class="json-key">"history"</span>: [<br>
-&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="json-key">"score"</span>: <span class="json-num">43</span>, <span class="json-key">"level"</span>: <span class="json-str">"Medium"</span>, <span class="json-key">"price"</span>: <span class="json-num">68.14</span>, <span class="json-key">"timestamp"</span>: <span class="json-num">1718870400000</span> },<br>
-&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="json-key">"score"</span>: <span class="json-num">38</span>, <span class="json-key">"level"</span>: <span class="json-str">"Medium"</span>, <span class="json-key">"price"</span>: <span class="json-num">65.20</span>, <span class="json-key">"timestamp"</span>: <span class="json-num">1718784000000</span> }<br>
-&nbsp;&nbsp;],<br>
-&nbsp;&nbsp;<span class="json-key">"momentum"</span>: { <span class="json-key">"delta"</span>: <span class="json-num">5</span>, <span class="json-key">"trend"</span>: <span class="json-str">"rising"</span>, <span class="json-key">"label"</span>: <span class="json-str">"▲ +5 Rising"</span> }<br>
-}
-        </div>
-        <a class="try-btn" href="/api/history?token=solana" target="_blank">↗ Try it live</a>
-      </div>
-    </div>
-
-    <!-- Stats -->
-    <div class="endpoint">
-      <div class="endpoint-header">
-        <div class="method get">GET</div>
-        <div class="endpoint-path">/api/stats</div>
-        <div class="endpoint-desc">Usage statistics</div>
-      </div>
-      <div class="endpoint-body">
-        <div class="code-label">Response</div>
-        <div class="code-block">{ <span class="json-key">"total_checks"</span>: <span class="json-num">142</span> }</div>
-        <a class="try-btn" href="/api/stats" target="_blank">↗ Try it live</a>
-      </div>
-    </div>
-  </div>
-
-  <hr class="divider">
-
-  <!-- Risk Score -->
-  <div class="section">
-    <div class="section-title">Risk Score Formula</div>
-    <div class="section-desc">Every score is calculated from three weighted signals derived from live CoinGecko market data. No black box — fully transparent and reproducible.</div>
-    <div class="endpoint">
-      <div class="endpoint-body">
-        <div class="param-row"><span class="param-name" style="color:var(--accent2)">Volatility</span><span class="param-type">weight: 40%</span><span class="param-desc">Absolute 24h price change × 2, capped at 40. Larger swings = higher score.</span></div>
-        <div class="param-row"><span class="param-name" style="color:var(--accent2)">Liquidity</span><span class="param-type">weight: 30%</span><span class="param-desc">24h volume / market cap ratio. Thinner liquidity = harder to exit = higher score.</span></div>
-        <div class="param-row"><span class="param-name" style="color:var(--accent2)">Momentum</span><span class="param-type">weight: 30%</span><span class="param-desc">Price position within its 24h range. Near extremes = closer to reversal = higher score.</span></div>
-        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:13px;color:var(--text-dim)">
-          <strong style="color:var(--text-mid)">Score Levels:</strong> &nbsp;
-          <span style="color:var(--green)">Low Risk (0–33)</span> &nbsp;·&nbsp;
-          <span style="color:var(--yellow)">Medium Risk (34–66)</span> &nbsp;·&nbsp;
-          <span style="color:var(--red)">High Risk (67–100)</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <hr class="divider">
-
-  <div class="footer">
-    Built by <a href="https://x.com/0xSketchify" target="_blank">@0xSketchify</a> · Sketchify Labs<br>
-    Bitget AI Hackathon — Trading Infrastructure Track · June 2026<br><br>
-    <a href="/">← Back to Dashboard</a>
-  </div>
-
-</div>
-</body>
-</html>
+&nbsp;&nbsp;<span class="json-key">"token"</span>: <span class="json-str">"so
