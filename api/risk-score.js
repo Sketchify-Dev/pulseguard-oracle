@@ -102,28 +102,38 @@ function formatResult(marketData, risk, insight) {
 // Powers the "X risk checks performed" stat on the dashboard
 // (see /api/stats). Failures here never break the main response.
 // ---------------------------------------------------------
+// ---------------------------------------------------------
+// Usage counter + Risk History — both stored in Upstash Redis
+// Supports both KV_REST_API_* (Vercel native) and UPSTASH_* env var names
+// ---------------------------------------------------------
+function getRedisConfig() {
+  return {
+    url: process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || null,
+    token: process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || null
+  };
+}
+
 async function incrementUsageCounter() {
+  const { url, token } = getRedisConfig();
+  if (!url || !token) return;
   try {
-    await fetch('https://api.countapi.xyz/hit/sketchify-pulseguard/risk-checks');
+    await fetch(`${url}/incr/pg:total_checks`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    });
   } catch (e) {
     // non-critical
   }
 }
 
-// ---------------------------------------------------------
-// Risk History — saves every score snapshot to Upstash Redis
-// Powers the Risk Timeline and Momentum features
-// ---------------------------------------------------------
 async function saveRiskHistory(tokenId, score, level, price) {
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!url || !token) return; // graceful no-op without storage
+  const { url, token } = getRedisConfig();
+  if (!url || !token) return;
 
   const snapshot = JSON.stringify({ score, level, price, timestamp: Date.now() });
   const key = `pg:history:${tokenId}`;
 
   try {
-    // Push to front of list, keep last 10 entries
     await fetch(`${url}/lpush/${key}/${encodeURIComponent(snapshot)}`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` }
@@ -132,13 +142,12 @@ async function saveRiskHistory(tokenId, score, level, price) {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` }
     });
-    // Expire after 7 days
     await fetch(`${url}/expire/${key}/604800`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` }
     });
   } catch (e) {
-    // non-critical — never break the main response
+    // non-critical
   }
 }
 
