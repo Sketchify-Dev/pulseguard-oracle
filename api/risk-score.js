@@ -134,20 +134,22 @@ async function saveRiskHistory(tokenId, score, level, price) {
   const key = `pg:history:${tokenId}`;
 
   try {
-    await fetch(`${url}/lpush/${key}/${encodeURIComponent(snapshot)}`, {
+    // Use pipeline to run 3 commands in one request
+    const pipeline = [
+      ['lpush', key, snapshot],
+      ['ltrim', key, 0, 9],
+      ['expire', key, 604800]
+    ];
+    await fetch(`${url}/pipeline`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    await fetch(`${url}/ltrim/${key}/0/9`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    await fetch(`${url}/expire/${key}/604800`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` }
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(pipeline)
     });
   } catch (e) {
-    // non-critical
+    // non-critical — never break the main response
   }
 }
 
