@@ -18,8 +18,7 @@ export default async function handler(req, res) {
         return formatResult(marketData, risk, ruleBasedSummary(marketData, risk));
       } catch (e) { return { token: { name: id }, error: e.message || 'Token not found' }; }
     }));
-    // fire and forget — don't await
-    redisIncr('pg:total_checks').catch(() => {});
+    await redisIncr('pg:total_checks').catch(() => {});
     return res.status(200).json({ results });
   }
 
@@ -30,9 +29,11 @@ export default async function handler(req, res) {
     const risk = calculateRisk(marketData.market_data);
     const insight = await getAIInsight(marketData, risk);
 
-    // fire and forget — don't await so they never block the response
-    redisIncr('pg:total_checks').catch(() => {});
-    redisSaveHistory(marketData.id, risk.total, risk.level, marketData.market_data.current_price.usd).catch(() => {});
+    // await both before responding — Vercel kills background tasks after response
+    await Promise.allSettled([
+      redisIncr('pg:total_checks'),
+      redisSaveHistory(marketData.id, risk.total, risk.level, marketData.market_data.current_price.usd)
+    ]);
 
     return res.status(200).json(formatResult(marketData, risk, insight));
   } catch (err) {
