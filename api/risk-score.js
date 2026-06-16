@@ -18,7 +18,8 @@ export default async function handler(req, res) {
         return formatResult(marketData, risk, ruleBasedSummary(marketData, risk));
       } catch (e) { return { token: { name: id }, error: e.message || 'Token not found' }; }
     }));
-    await incrementUsageCounter();
+    // fire and forget — don't await
+    redisIncr('pg:total_checks').catch(() => {});
     return res.status(200).json({ results });
   }
 
@@ -28,14 +29,54 @@ export default async function handler(req, res) {
     const marketData = await fetchTokenData(token.trim());
     const risk = calculateRisk(marketData.market_data);
     const insight = await getAIInsight(marketData, risk);
-    await incrementUsageCounter();
-    await saveRiskHistory(marketData.id, risk.total, risk.level, marketData.market_data.current_price.usd);
+
+    // fire and forget — don't await so they never block the response
+    redisIncr('pg:total_checks').catch(() => {});
+    redisSaveHistory(marketData.id, risk.total, risk.level, marketData.market_data.current_price.usd).catch(() => {});
+
     return res.status(200).json(formatResult(marketData, risk, insight));
   } catch (err) {
     return res.status(404).json({ error: err.message || 'Token not found' });
   }
 }
 
+// ─────────────────────────────────────────
+// Redis helpers — raw Upstash REST API
+// ─────────────────────────────────────────
+function getRedis() {
+  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+  return { url, token, ready: !!(url && token) };
+}
+
+async function redisCmd(commands) {
+  const { url, token, ready } = getRedis();
+  if (!ready) return null;
+  const res = await fetch(`${url}/pipeline`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(commands)
+  });
+  return res.json();
+}
+
+async function redisIncr(key) {
+  return redisCmd([[`incr`, key]]);
+}
+
+async function redisSaveHistory(tokenId, score, level, price) {
+  const snapshot = JSON.stringify({ score, level, price, timestamp: Date.now() });
+  const key = `pg:history:${tokenId}`;
+  return redisCmd([
+    ['lpush', key, snapshot],
+    ['ltrim', key, 0, 9],
+    ['expire', key, 604800]
+  ]);
+}
+
+// ─────────────────────────────────────────
+// Format result
+// ─────────────────────────────────────────
 function formatResult(marketData, risk, insight) {
   const colorMap = { Low: '#22d87a', Medium: '#f5c542', High: '#ff4f6a' };
   return {
@@ -50,55 +91,26 @@ function formatResult(marketData, risk, insight) {
   };
 }
 
-function getRedisConfig() {
-  return {
-    url: process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || null,
-    token: process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || null
-  };
-}
-
-async function incrementUsageCounter() {
-  const { url, token } = getRedisConfig();
-  if (!url || !token) { console.error('[PulseGuard] Redis not configured'); return; }
-  try {
-    const r = await fetch(`${url}/incr/pg:total_checks`, {
-      method: 'POST', headers: { Authorization: `Bearer ${token}` }
-    });
-    const d = await r.json();
-    console.log('[PulseGuard] Counter:', JSON.stringify(d));
-  } catch (e) { console.error('[PulseGuard] Counter error:', e.message); }
-}
-
-async function saveRiskHistory(tokenId, score, level, price) {
-  const { url, token } = getRedisConfig();
-  if (!url || !token) return;
-  const snapshot = JSON.stringify({ score, level, price, timestamp: Date.now() });
-  const key = `pg:history:${tokenId}`;
-  try {
-    const pipeline = [['lpush', key, snapshot], ['ltrim', key, 0, 9], ['expire', key, 604800]];
-    const r = await fetch(`${url}/pipeline`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(pipeline)
-    });
-    const d = await r.json();
-    console.log('[PulseGuard] History saved for', tokenId, ':', JSON.stringify(d));
-  } catch (e) { console.error('[PulseGuard] History error:', e.message); }
-}
-
+// ─────────────────────────────────────────
+// CoinGecko market data
+// ─────────────────────────────────────────
 async function fetchTokenData(query) {
   const slug = query.toLowerCase().replace(/\s+/g, '-');
   let resp = await fetch(`https://api.coingecko.com/api/v3/coins/${slug}?localization=false&tickers=false&community_data=false&developer_data=false`);
   if (!resp.ok) {
     const s = await fetch(`https://api.coingecko.com/api/v3/search?query=${slug}`);
     const sd = await s.json();
-    if (sd.coins?.length > 0) resp = await fetch(`https://api.coingecko.com/api/v3/coins/${sd.coins[0].id}?localization=false&tickers=false&community_data=false&developer_data=false`);
-    else throw new Error('Token not found');
+    if (sd.coins?.length > 0) {
+      resp = await fetch(`https://api.coingecko.com/api/v3/coins/${sd.coins[0].id}?localization=false&tickers=false&community_data=false&developer_data=false`);
+    } else throw new Error('Token not found');
   }
   if (!resp.ok) throw new Error('Token not found');
   return resp.json();
 }
 
+// ─────────────────────────────────────────
+// Risk engine
+// ─────────────────────────────────────────
 function calculateRisk(m) {
   const change = m.price_change_percentage_24h ?? 0;
   const volume = m.total_volume?.usd ?? 0, mcap = m.market_cap?.usd ?? 1;
@@ -113,6 +125,9 @@ function calculateRisk(m) {
   return { total, level, change, volRatio, position, breakdown: { volatility: Math.round(volatility), liquidity: Math.round(liquidity), momentum: Math.round(momentum) } };
 }
 
+// ─────────────────────────────────────────
+// AI insight via Qwen
+// ─────────────────────────────────────────
 async function getAIInsight(marketData, risk) {
   const apiKey = process.env.QWEN_API_KEY;
   if (!apiKey) return ruleBasedSummary(marketData, risk);
