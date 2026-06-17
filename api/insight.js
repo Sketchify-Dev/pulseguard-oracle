@@ -6,9 +6,10 @@ export default async function handler(req, res) {
   const { name, symbol, price, change24h, riskScore, riskLevel, breakdown, fallback } = req.body || {};
 
   // Save to Redis immediately — before anything that can fail
-  // This is the function called by the dashboard on every token check
+  // Strip $ and commas from price string before saving (frontend sends "$68.14")
   const tokenId = (name || symbol || 'unknown').toLowerCase().replace(/\s+/g, '-');
-  await saveToRedis(tokenId, riskScore, riskLevel, price).catch(() => {});
+  const numericPrice = parseFloat((price || '0').toString().replace(/[$,]/g, '')) || 0;
+  await saveToRedis(tokenId, riskScore, riskLevel, numericPrice).catch(() => {});
 
   const apiKey = process.env.QWEN_API_KEY;
 
