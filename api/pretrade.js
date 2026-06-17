@@ -108,35 +108,35 @@ function generateFlags(marketData, risk, amount, portfolioValue) {
   const volRatio = (m.total_volume?.usd ?? 0) / (m.market_cap?.usd ?? 1);
 
   if (Math.abs(change) > 10) {
-    flags.push({ severity: 'high', message: `Extreme 24h price movement (${change.toFixed(1)}%) — elevated volatility risk` });
+    flags.push({ severity: 'high', message: `Extreme 24h price movement (${change.toFixed(1)}%) elevated volatility risk` });
   } else if (Math.abs(change) > 5) {
     flags.push({ severity: 'medium', message: `Above-average 24h price movement (${change.toFixed(1)}%)` });
   }
 
   if (volRatio < 0.02) {
-    flags.push({ severity: 'high', message: 'Very thin liquidity — large orders may cause significant slippage' });
+    flags.push({ severity: 'high', message: 'Very thin liquidity: large orders may cause significant slippage' });
   } else if (volRatio < 0.05) {
-    flags.push({ severity: 'medium', message: 'Below-average liquidity — consider smaller position size' });
+    flags.push({ severity: 'medium', message: 'Below-average liquidity: consider smaller position size' });
   }
 
   if (risk.total > 75) {
-    flags.push({ severity: 'high', message: `High overall risk score (${risk.total}/100) — position with extreme caution` });
+    flags.push({ severity: 'high', message: `High overall risk score (${risk.total}/100): position with extreme caution` });
   }
 
   const high = m.high_24h?.usd ?? 0, low = m.low_24h?.usd ?? 0, price = m.current_price?.usd ?? 0;
   const range = high - low;
   if (range > 0) {
     const position = (price - low) / range;
-    if (position > 0.9) flags.push({ severity: 'medium', message: 'Price near 24h high — potential resistance zone' });
-    if (position < 0.1) flags.push({ severity: 'medium', message: 'Price near 24h low — watch for further downside' });
+    if (position > 0.9) flags.push({ severity: 'medium', message: 'Price near 24h high, potential resistance zone' });
+    if (position < 0.1) flags.push({ severity: 'medium', message: 'Price near 24h low, watch for further downside' });
   }
 
   if (amount && portfolioValue && (amount / portfolioValue) > 0.25) {
-    flags.push({ severity: 'high', message: 'Position exceeds 25% of portfolio — dangerous concentration risk' });
+    flags.push({ severity: 'high', message: 'Position exceeds 25% of portfolio, dangerous concentration risk' });
   }
 
   if (flags.length === 0) {
-    flags.push({ severity: 'low', message: 'No major risk flags detected — conditions look relatively stable' });
+    flags.push({ severity: 'low', message: 'No major risk flags detected, conditions look relatively stable' });
   }
 
   return flags;
