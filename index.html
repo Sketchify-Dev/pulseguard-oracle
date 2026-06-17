@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PulseGuard — AI Risk Dashboard</title>
+<title>PulseGuard - AI Risk Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -388,7 +388,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <div id="panelSingleInput" class="section-panel show">
     <div class="search-row">
       <div class="search-wrap">
-        <input id="tokenInput" type="text" placeholder="Search any token — e.g. solana, bonk, pepe..." onkeydown="if(event.key==='Enter')run()">
+        <input id="tokenInput" type="text" placeholder="Search any token e.g. solana, bonk, pepe, soso..." onkeydown="if(event.key==='Enter')run()">
       </div>
       <button class="check-btn" onclick="run()">Check</button>
     </div>
@@ -397,11 +397,11 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <!-- Compare inputs -->
   <div id="panelCompareInput" class="section-panel">
     <div class="search-row" style="margin-bottom:8px">
-      <div class="search-wrap"><input id="tokenA" type="text" placeholder="Token A — e.g. solana"></div>
+      <div class="search-wrap"><input id="tokenA" type="text" placeholder="Token A e.g. solana"></div>
     </div>
     <div class="compare-vs">vs</div>
     <div class="search-row" style="margin-bottom:12px">
-      <div class="search-wrap"><input id="tokenB" type="text" placeholder="Token B — e.g. bitcoin"></div>
+      <div class="search-wrap"><input id="tokenB" type="text" placeholder="Token B e.g. bitcoin"></div>
     </div>
     <button class="check-btn full-btn" onclick="runCompare()">Compare Tokens</button>
   </div>
@@ -409,7 +409,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <!-- Pre-Trade inputs -->
   <div id="panelPretradeInput" class="section-panel">
     <div class="search-row" style="margin-bottom:8px">
-      <div class="search-wrap"><input id="pretradeToken" type="text" placeholder="Token — e.g. solana, bonk..." onkeydown="if(event.key==='Enter')runPretrade()"></div>
+      <div class="search-wrap"><input id="pretradeToken" type="text" placeholder="Token e.g. solana, bonk..." onkeydown="if(event.key==='Enter')runPretrade()"></div>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:12px">
       <div class="search-wrap"><input id="pretradeAmount" type="number" placeholder="Trade amount USD (optional)"></div>
@@ -460,17 +460,17 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       </div>
       <div class="api-endpoint" onclick="window.open('https://pulseguard-two.vercel.app/api/pretrade','_blank')">
         <div class="api-method">POST</div>
-        <div class="api-path">/api/pretrade — pre-trade risk check</div>
+        <div class="api-path">/api/pretrade - pre-trade risk check</div>
         <div class="api-arrow">↗</div>
       </div>
       <div class="api-endpoint" onclick="window.open('https://pulseguard-two.vercel.app/api/history?token=solana','_blank')">
         <div class="api-method">GET</div>
-        <div class="api-path">/api/history?token=solana — last 10 risk snapshots</div>
+        <div class="api-path">/api/history?token=solana - shows last 10 risk snapshots</div>
         <div class="api-arrow">↗</div>
       </div>
       <div class="api-endpoint" onclick="window.open('https://pulseguard-two.vercel.app/api/stats','_blank')">
         <div class="api-method">GET</div>
-        <div class="api-path">/api/stats — total checks performed</div>
+        <div class="api-path">/api/stats - total checks performed</div>
         <div class="api-arrow">↗</div>
       </div>
     </div>
@@ -519,9 +519,9 @@ function setMode(mode) {
   if (mode === 'single') {
     showEmpty();
   } else if (mode === 'compare') {
-    out.innerHTML = '<div class="empty-state"><span class="empty-icon">⚖️</span><div class="empty-title">Compare Any Two Tokens</div><div class="empty-desc">Enter two tokens above to see a side-by-side risk comparison — which is safer and why.</div></div>';
+    out.innerHTML = '<div class="empty-state"><span class="empty-icon">⚖️</span><div class="empty-title">Compare Any Two Tokens</div><div class="empty-desc">Enter two tokens above to see a side-by-side risk comparison which is safer and why.</div></div>';
   } else if (mode === 'pretrade') {
-    out.innerHTML = '<div class="empty-state"><span class="empty-icon">🛡️</span><div class="empty-title">Pre-Trade Risk Check</div><div class="empty-desc">Enter a token and optional trade size — PulseGuard will analyze risk flags, position sizing, and give you an AI-powered recommendation before you pull the trigger.</div></div>';
+    out.innerHTML = '<div class="empty-state"><span class="empty-icon">🛡️</span><div class="empty-title">Pre-Trade Risk Check</div><div class="empty-desc">Enter a token and optional trade size - PulseGuard will analyze risk flags, position sizing, and give you an AI-powered recommendation before you pull the trigger.</div></div>';
   } else if (mode === 'watchlist') {
     renderWatchlist();
     var list = getWatchlist();
@@ -545,7 +545,7 @@ function quickPick(id) {
 }
 
 function showEmpty() {
-  document.getElementById('output').innerHTML = '<div class="empty-state"><span class="empty-icon">🛡️</span><div class="empty-title">Know Your Risk Before You Ape In</div><div class="empty-desc">PulseGuard is a Risk Intelligence API that scores any token in real-time — built for traders, bots, and AI agents.</div><div class="empty-features"><div class="empty-feature"><span>📊</span>Live risk score (0-100) with full breakdown</div><div class="empty-feature"><span>🤖</span>AI-generated trader insight via Qwen</div><div class="empty-feature"><span>⚖️</span>Compare two tokens side by side</div><div class="empty-feature"><span>🛡️</span>Pre-trade risk check with position sizing</div><div class="empty-feature"><span>🔌</span>Free public API — no auth needed</div></div></div>';
+  document.getElementById('output').innerHTML = '<div class="empty-state"><span class="empty-icon">🛡️</span><div class="empty-title">Know Your Risk Before You Ape In</div><div class="empty-desc">PulseGuard is a Risk Intelligence API that scores any token in real-time, built for traders, bots, and AI agents.</div><div class="empty-features"><div class="empty-feature"><span>📊</span>Live risk score (0-100) with full breakdown</div><div class="empty-feature"><span>🤖</span>AI-generated trader insight via Qwen</div><div class="empty-feature"><span>⚖️</span>Compare two tokens side by side</div><div class="empty-feature"><span>🛡️</span>Pre-trade risk check with position sizing</div><div class="empty-feature"><span>🔌</span>Free public API - no auth needed</div></div></div>';
 }
 
 // ─────────────────────────────────────────
@@ -626,7 +626,7 @@ function copyShareText() {
   var m = _lastData.market_data;
   var priceS = m.current_price.usd >= 1 ? '$' + m.current_price.usd.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) : '$' + m.current_price.usd.toFixed(6);
   var emoji = _lastRisk.level === 'Low Risk' ? '🟢' : _lastRisk.level === 'Medium Risk' ? '🟡' : '🔴';
-  var text = emoji + ' ' + _lastData.name + ' (' + _lastData.symbol.toUpperCase() + ') Risk Score: ' + _lastRisk.total + '/100 — ' + _lastRisk.level + '\n\nVolatility: ' + _lastRisk.breakdown.volatility + '/40\nLiquidity Risk: ' + _lastRisk.breakdown.liquidity + '/30\nMomentum: ' + _lastRisk.breakdown.momentum + '/30\n\nPrice: ' + priceS + (_lastInsight ? '\n\n' + _lastInsight : '') + '\n\nPowered by PulseGuard ⚡\npulseguard-two.vercel.app\n\n#PulseGuard #crypto #DeFi';
+  var text = emoji + ' ' + _lastData.name + ' (' + _lastData.symbol.toUpperCase() + ') Risk Score: ' + _lastRisk.total + '/100 - ' + _lastRisk.level + '\n\nVolatility: ' + _lastRisk.breakdown.volatility + '/40\nLiquidity Risk: ' + _lastRisk.breakdown.liquidity + '/30\nMomentum: ' + _lastRisk.breakdown.momentum + '/30\n\nPrice: ' + priceS + (_lastInsight ? '\n\n' + _lastInsight : '') + '\n\nPowered by PulseGuard ⚡\npulseguard-two.vercel.app\n\n#PulseGuard #crypto #DeFi';
   navigator.clipboard.writeText(text).then(function() {
     var btn = document.getElementById('copyBtn');
     btn.textContent = '✓ Copied!';
@@ -761,7 +761,7 @@ async function run() {
         '<div class="bar-row"><div class="bar-label"><span class="name">Momentum</span><span class="val">' + risk.breakdown.momentum + ' / 30</span></div><div class="bar-track"><div class="bar-fill" style="width:' + (risk.breakdown.momentum/30*100) + '%"></div></div></div>' +
       '</div>' +
       '<div class="ai-card"><div class="ai-label"><span class="ai-dot"></span>AI Insight</div><div id="aiText"><div class="ai-shimmer" style="width:100%"></div><div class="ai-shimmer" style="width:82%"></div><div class="ai-shimmer" style="width:60%"></div></div></div>' +
-      '<div class="action-row"><button class="action-btn ' + (inWL ? 'saved' : '') + '" id="watchlistBtn" onclick="addToWatchlist()">' + (inWL ? '✓ Saved' : '+ Watchlist') + '</button><button class="action-btn share-btn" onclick="openShare()">Share Card 🔗</button></div>' +
+      '<div class="action-row"><button class="action-btn ' + (inWL ? 'saved' : '') + '" id="watchlistBtn" onclick="addToWatchlist()">' + (inWL ? '✓ Saved' : '+ Watchlist') + '</button><button class="action-btn share-btn" onclick="openShare()">Share Card</button></div>' +
       '<div class="history-card"><div class="history-header"><span class="history-title">📈 Risk History</span><span class="history-count" id="historyCount">Loading...</span></div><div class="history-list" id="historyList"><div class="history-empty">Loading history...</div></div></div>' +
       buildTradeConfidence(data, risk);
 
@@ -1017,7 +1017,7 @@ async function fetchAndRenderHistory(tokenName, containerId) {
     var history = data.history || [];
 
     if (history.length === 0) {
-      container.innerHTML = '<div class="history-empty">No history yet — check this token a few times to build a timeline</div>';
+      container.innerHTML = '<div class="history-empty">No history yet, check this token a few times to build a timeline</div>';
       return;
     }
 
