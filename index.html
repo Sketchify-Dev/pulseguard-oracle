@@ -261,6 +261,97 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   .tc-recommendation { background: var(--surface); border: 1px solid var(--border2); border-radius: 12px; padding: 14px; font-size: 13px; line-height: 1.6; color: var(--text-mid); }
   .tc-recommendation strong { color: var(--text); }
 
+
+  /* Risk History Timeline */
+  .history-card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+  }
+  .history-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .history-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+  .history-count {
+    font-size: 11px;
+    color: var(--text-dim);
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .history-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 13px;
+  }
+  .history-row.latest {
+    border-color: var(--border2);
+    background: var(--card2);
+  }
+  .history-time {
+    color: var(--text-dim);
+    font-size: 11px;
+    min-width: 80px;
+    flex-shrink: 0;
+  }
+  .history-score {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    min-width: 32px;
+    flex-shrink: 0;
+  }
+  .history-level {
+    font-size: 12px;
+    font-weight: 500;
+    flex: 1;
+    color: var(--text-mid);
+  }
+  .history-price {
+    font-size: 11px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    font-family: monospace;
+  }
+  .history-trend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+    min-width: 48px;
+    justify-content: flex-end;
+  }
+  .history-empty {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-dim);
+    padding: 12px;
+  }
+
 </style>
 </head>
 <body>
@@ -671,6 +762,7 @@ async function run() {
       '</div>' +
       '<div class="ai-card"><div class="ai-label"><span class="ai-dot"></span>AI Insight</div><div id="aiText"><div class="ai-shimmer" style="width:100%"></div><div class="ai-shimmer" style="width:82%"></div><div class="ai-shimmer" style="width:60%"></div></div></div>' +
       '<div class="action-row"><button class="action-btn ' + (inWL ? 'saved' : '') + '" id="watchlistBtn" onclick="addToWatchlist()">' + (inWL ? '✓ Saved' : '+ Watchlist') + '</button><button class="action-btn share-btn" onclick="openShare()">Share Card 🔗</button></div>' +
+      '<div class="history-card"><div class="history-header"><span class="history-title">📈 Risk History</span><span class="history-count" id="historyCount">Loading...</span></div><div class="history-list" id="historyList"><div class="history-empty">Loading history...</div></div></div>' +
       buildTradeConfidence(data, risk);
 
     try {
@@ -681,6 +773,17 @@ async function run() {
     } catch(e) {
       document.getElementById('aiText').innerHTML = '<div class="ai-text dim">' + fb + '</div>';
     }
+
+    // Load history after insight (non-blocking)
+    fetchAndRenderHistory(data.name, 'historyList').then(function() {
+      var list = document.getElementById('historyList');
+      var countEl = document.getElementById('historyCount');
+      if (list && countEl) {
+        var rows = list.querySelectorAll('.history-row');
+        countEl.textContent = rows.length > 0 ? 'Last ' + rows.length + ' checks' : 'No history yet';
+      }
+    });
+
   } catch(e) {
     out.innerHTML = '<div class="error-state">⚠️ ' + (e.message || 'Something went wrong') + '. Try a different token.</div>';
   }
@@ -868,6 +971,87 @@ function buildTradeConfidence(data, risk) {
     '</div>' +
     '<div class="tc-recommendation"><strong>Recommendation:</strong> ' + action + ' Max suggested position: <strong>' + maxPosPct + '% of your portfolio</strong> based on current risk profile.</div>' +
   '</div>';
+}
+
+
+// ─────────────────────────────────────────
+// RISK HISTORY — fetch and render timeline
+// ─────────────────────────────────────────
+function formatTimeAgo(timestamp) {
+  var now = Date.now();
+  var diff = now - timestamp;
+  var mins = Math.floor(diff / 60000);
+  var hours = Math.floor(diff / 3600000);
+  var days = Math.floor(diff / 86400000);
+  if (mins < 1) return 'Just now';
+  if (mins < 60) return mins + 'm ago';
+  if (hours < 24) return hours + 'h ago';
+  return days + 'd ago';
+}
+
+function formatHistoryPrice(price) {
+  if (!price) return '';
+  return price >= 1
+    ? '$' + parseFloat(price).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})
+    : '$' + parseFloat(price).toFixed(5);
+}
+
+function getLevelColor(level) {
+  if (!level) return 'var(--text-dim)';
+  var l = level.toLowerCase();
+  if (l.includes('low')) return 'var(--green)';
+  if (l.includes('high')) return 'var(--red)';
+  return 'var(--yellow)';
+}
+
+async function fetchAndRenderHistory(tokenName, containerId) {
+  var container = document.getElementById(containerId);
+  if (!container) return;
+
+  var tokenId = tokenName.toLowerCase().replace(/\s+/g, '-');
+
+  try {
+    var res = await fetch('/api/history?token=' + encodeURIComponent(tokenId));
+    var data = await res.json();
+    var history = data.history || [];
+
+    if (history.length === 0) {
+      container.innerHTML = '<div class="history-empty">No history yet — check this token a few times to build a timeline</div>';
+      return;
+    }
+
+    var rows = history.map(function(entry, i) {
+      var color = getLevelColor(entry.level);
+      var isLatest = i === 0;
+
+      // Calculate trend vs previous
+      var trendHTML = '';
+      if (i < history.length - 1) {
+        var delta = entry.score - history[i + 1].score;
+        if (Math.abs(delta) <= 3) {
+          trendHTML = '<span class="history-trend" style="color:var(--text-dim)">● —</span>';
+        } else if (delta > 0) {
+          trendHTML = '<span class="history-trend" style="color:var(--red)">▲ +' + delta + '</span>';
+        } else {
+          trendHTML = '<span class="history-trend" style="color:var(--green)">▼ ' + delta + '</span>';
+        }
+      } else {
+        trendHTML = '<span class="history-trend" style="color:var(--text-dim)">—</span>';
+      }
+
+      return '<div class="history-row' + (isLatest ? ' latest' : '') + '">' +
+        '<span class="history-time">' + formatTimeAgo(entry.timestamp) + '</span>' +
+        '<span class="history-score" style="color:' + color + '">' + entry.score + '</span>' +
+        '<span class="history-level">' + (entry.level || '') + '</span>' +
+        '<span class="history-price">' + formatHistoryPrice(entry.price) + '</span>' +
+        trendHTML +
+      '</div>';
+    }).join('');
+
+    container.innerHTML = rows;
+  } catch(e) {
+    container.innerHTML = '<div class="history-empty">Could not load history</div>';
+  }
 }
 
 </script>
