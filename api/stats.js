@@ -1,7 +1,7 @@
 /**
  * PulseGuard Stats API
  * GET /api/stats
- * Returns total risk checks performed — powered by Upstash Redis counter.
+ * Returns total risk checks performed, powered by Upstash Redis counter.
  */
 
 export default async function handler(req, res) {
