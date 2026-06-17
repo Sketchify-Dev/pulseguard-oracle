@@ -3,46 +3,54 @@ export default async function handler(req, res) {
   const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
 
   if (!url || !token) {
-    return res.status(200).json({ 
-      error: 'No Redis config',
-      found_vars: Object.keys(process.env).filter(k => k.includes('KV') || k.includes('REDIS') || k.includes('UPSTASH'))
-    });
+    return res.status(200).json({ error: 'No Redis config' });
   }
 
-  const snapshot = JSON.stringify({ score: 55, level: 'Medium', price: 68.14, timestamp: Date.now() });
-  const key = 'pg:history:debug-test';
+  // Simulate exactly what risk-score.js does
+  const tokenId = 'solana';
+  const snapshot = JSON.stringify({ score: 42, level: 'Medium', price: 68.14, timestamp: Date.now() });
+  const key = `pg:history:${tokenId}`;
 
   try {
-    // Write
-    const writeRes = await fetch(`${url}/pipeline`, {
+    // Step 1: incr counter (same as redisIncr)
+    const incrRes = await fetch(`${url}/pipeline`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify([['incr', 'pg:total_checks']])
+    });
+    const incrData = await incrRes.json();
+
+    // Step 2: save history (same as redisSaveHistory)
+    const histRes = await fetch(`${url}/pipeline`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify([
         ['lpush', key, snapshot],
         ['ltrim', key, 0, 9],
-        ['expire', key, 300],
-        ['incr', 'pg:debug:counter']
+        ['expire', key, 604800]
       ])
     });
-    const writeData = await writeRes.json();
+    const histData = await histRes.json();
 
-    // Read back
+    // Step 3: read back to verify
     const readRes = await fetch(`${url}/pipeline`, {
-      method: 'POST', 
+      method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify([
-        ['lrange', key, 0, 9],
         ['get', 'pg:total_checks'],
-        ['get', 'pg:debug:counter']
+        ['lrange', key, 0, 2]
       ])
     });
     const readData = await readRes.json();
 
     return res.status(200).json({
-      write: writeData,
-      read: readData,
-      snapshot_written: snapshot,
-      redis_url_prefix: url.substring(0, 35) + '...'
+      step1_incr: incrData,
+      step2_history: histData,
+      step3_verify: readData,
+      conclusion: {
+        counter: readData[0]?.result,
+        history_count: readData[1]?.result?.length || 0
+      }
     });
   } catch(e) {
     return res.status(200).json({ error: e.message });
