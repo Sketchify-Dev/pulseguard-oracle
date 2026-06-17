@@ -5,7 +5,7 @@ export default async function handler(req, res) {
 
   const { name, symbol, price, change24h, riskScore, riskLevel, breakdown, fallback } = req.body || {};
 
-  // Save to Redis immediately — before anything that can fail
+  // Save to Redis immediately before anything that can fail
   // Strip $ and commas from price string before saving (frontend sends "$68.14")
   const tokenId = (name || symbol || 'unknown').toLowerCase().replace(/\s+/g, '-');
   const numericPrice = parseFloat((price || '0').toString().replace(/[$,]/g, '')) || 0;
@@ -15,7 +15,7 @@ export default async function handler(req, res) {
 
   if (!apiKey) {
     return res.status(200).json({
-      insight: fallback || `${riskLevel} — based on volatility, liquidity, and momentum analysis.`,
+      insight: fallback || `${riskLevel} based on volatility, liquidity, and momentum analysis.`,
       source: 'fallback'
     });
   }
@@ -28,7 +28,7 @@ Current price: $${price}
 Risk score: ${riskScore}/100 (${riskLevel})
 Breakdown — Volatility: ${breakdown.volatility}/40, Liquidity risk: ${breakdown.liquidity}/30, Momentum: ${breakdown.momentum}/30
 
-Write 2-3 sentences explaining what this risk profile means for a trader right now. Be specific, confident, and avoid generic disclaimers. Do not repeat the raw numbers back verbatim — interpret them.`;
+Write 2-3 sentences explaining what this risk profile means for a trader right now. Be specific, confident, and avoid generic disclaimers. Do not repeat the raw numbers back verbatim, interpret them.`;
 
   try {
     const response = await fetch('https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions', {
@@ -56,7 +56,7 @@ Write 2-3 sentences explaining what this risk profile means for a trader right n
     });
   } catch (err) {
     return res.status(200).json({
-      insight: fallback || `${riskLevel} — based on volatility, liquidity, and momentum analysis.`,
+      insight: fallback || `${riskLevel} based on volatility, liquidity, and momentum analysis.`,
       source: 'fallback',
       error: err.message
     });
