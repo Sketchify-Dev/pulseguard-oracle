@@ -435,7 +435,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <div class="modal-box">
       <div class="modal-title">Share Risk Card</div>
       <div class="share-preview" id="sharePreview"></div>
-      <div class="modal-hint">Screenshot this card and post it on crypto Twitter 🔥</div>
+      <div class="modal-hint">Screenshot this card and post it on crypto Twitter</div>
       <div class="modal-actions">
         <button class="modal-btn modal-btn-close" onclick="closeShare()">Close</button>
         <button class="modal-btn modal-btn-copy" onclick="copyShareText()" id="copyBtn">Copy Text</button>
@@ -521,7 +521,7 @@ function setMode(mode) {
   } else if (mode === 'compare') {
     out.innerHTML = '<div class="empty-state"><span class="empty-icon">⚖️</span><div class="empty-title">Compare Any Two Tokens</div><div class="empty-desc">Enter two tokens above to see a side-by-side risk comparison which is safer and why.</div></div>';
   } else if (mode === 'pretrade') {
-    out.innerHTML = '<div class="empty-state"><span class="empty-icon">🛡️</span><div class="empty-title">Pre-Trade Risk Check</div><div class="empty-desc">Enter a token and optional trade size - PulseGuard will analyze risk flags, position sizing, and give you an AI-powered recommendation before you pull the trigger.</div></div>';
+    out.innerHTML = '<div class="empty-state"><span class="empty-icon">🛡️</span><div class="empty-title">Pre-Trade Risk Check</div><div class="empty-desc">Enter a token and optional trade size. PulseGuard will analyze risk flags, position sizing, and give you an AI-powered recommendation before you pull the trigger.</div></div>';
   } else if (mode === 'watchlist') {
     renderWatchlist();
     var list = getWatchlist();
