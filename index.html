@@ -990,10 +990,11 @@ function formatTimeAgo(timestamp) {
 }
 
 function formatHistoryPrice(price) {
-  if (!price) return '';
-  return price >= 1
-    ? '$' + parseFloat(price).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})
-    : '$' + parseFloat(price).toFixed(5);
+  var p = parseFloat(price);
+  if (!price || isNaN(p)) return '';
+  return p >= 1
+    ? '$' + p.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})
+    : '$' + p.toFixed(6);
 }
 
 function getLevelColor(level) {
