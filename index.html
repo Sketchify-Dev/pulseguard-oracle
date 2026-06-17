@@ -939,7 +939,7 @@ function buildTradeConfidence(data, risk) {
 
   var confidenceLevel, confidenceColor, action;
   if (baseConfidence >= 70) { confidenceLevel = 'Favorable'; confidenceColor = 'var(--green)'; action = 'Conditions look relatively safe for entry.'; }
-  else if (baseConfidence >= 45) { confidenceLevel = 'Moderate'; confidenceColor = 'var(--yellow)'; action = 'Proceed with caution, size down and set stops.'; }
+  else if (baseConfidence >= 45) { confidenceLevel = 'Moderate'; confidenceColor = 'var(--yellow)'; action = 'Proceed with caution: size down and set stops.'; }
   else { confidenceLevel = 'Unfavorable'; confidenceColor = 'var(--red)'; action = 'High risk environment, consider waiting for better conditions.'; }
 
   var barColor = baseConfidence >= 70 ? 'linear-gradient(90deg, var(--green), #16a34a)' :
