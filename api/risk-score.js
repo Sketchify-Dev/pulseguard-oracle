@@ -27,13 +27,15 @@ export default async function handler(req, res) {
   try {
     const marketData = await fetchTokenData(token.trim());
     const risk = calculateRisk(marketData.market_data);
-    const insight = await getAIInsight(marketData, risk);
-
-    // await both before responding — Vercel kills background tasks after response
+    // Save to Redis FIRST — before Qwen which can timeout
+    // This guarantees stats + history are recorded even if AI insight fails
     await Promise.allSettled([
       redisIncr('pg:total_checks'),
       redisSaveHistory(marketData.id, risk.total, risk.level, marketData.market_data.current_price.usd)
     ]);
+
+    // AI insight after — if it fails, we still return the risk score
+    const insight = await getAIInsight(marketData, risk);
 
     return res.status(200).json(formatResult(marketData, risk, insight));
   } catch (err) {
