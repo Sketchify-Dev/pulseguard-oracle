@@ -710,7 +710,7 @@ function fallbackSummary(risk) {
     liquidity: 'thin trading volume (' + (risk.volRatio*100).toFixed(2) + '% of market cap)',
     momentum: 'price near its 24h ' + (risk.position > 0.5 ? 'high' : 'low')
   };
-  return risk.level + ' — primarily driven by ' + reasons[top] + '.';
+  return risk.level + ', primarily driven by ' + reasons[top] + '.';
 }
 
 function iconHTML(data) {
