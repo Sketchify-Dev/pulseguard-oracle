@@ -1,7 +1,7 @@
 /**
  * PulseGuard Risk Score API
- * GET /api/risk-score?token=<id>  — single token
- * GET /api/risk-score?tokens=<id1>,<id2>,...  — batch up to 10
+ * GET /api/risk-score?token=<id>  - single token
+ * GET /api/risk-score?tokens=<id1>,<id2>,...  - batch up to 10
  */
 
 export default async function handler(req, res) {
@@ -27,14 +27,14 @@ export default async function handler(req, res) {
   try {
     const marketData = await fetchTokenData(token.trim());
     const risk = calculateRisk(marketData.market_data);
-    // Save to Redis FIRST — before Qwen which can timeout
+    // Save to Redis FIRST, before Qwen which can timeout
     // This guarantees stats + history are recorded even if AI insight fails
     await Promise.allSettled([
       redisIncr('pg:total_checks'),
       redisSaveHistory(marketData.id, risk.total, risk.level, marketData.market_data.current_price.usd)
     ]);
 
-    // AI insight after — if it fails, we still return the risk score
+    // AI insight after, if it fails, we still return the risk score
     const insight = await getAIInsight(marketData, risk);
 
     return res.status(200).json(formatResult(marketData, risk, insight));
@@ -44,7 +44,7 @@ export default async function handler(req, res) {
 }
 
 // ─────────────────────────────────────────
-// Redis helpers — raw Upstash REST API
+// Redis helpers - raw Upstash REST API
 // ─────────────────────────────────────────
 function getRedis() {
   const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
