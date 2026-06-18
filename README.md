@@ -14,9 +14,9 @@ Built for the **Bitget AI Base Camp Hackathon S1** - Trading Infrastructure trac
 
 ## The Problem
 
-Most traders size up a token's risk by gut feeling — glance at the chart, check the 24h change, decide whether to ape in. There is no quick, standardized way to ask "how risky is this token right now?"
+Most traders size up a token's risk by gut feeling, glance at the chart, check the 24h change, decide whether to ape in. There is no quick, standardized way to ask "how risky is this token right now?"
 
-AI trading agents have the same problem. They need a machine-readable risk signal they can act on directly — but most tools are built only for humans, not for other software to consume.
+AI trading agents have the same problem. They need a machine-readable risk signal they can act on directly but most tools are built only for humans, not for other software to consume.
 
 PulseGuard solves both.
 
@@ -28,9 +28,9 @@ PulseGuard scores any token's risk in real-time using three weighted factors:
 
 | Factor | Weight | What it measures |
 |---|---|---|
-| Volatility | 40% | Absolute 24h price change — bigger swings = higher risk |
-| Liquidity | 30% | Volume / market cap ratio — thin liquidity = harder to exit |
-| Momentum | 30% | Price position in 24h range — near extremes = reversal risk |
+| Volatility | 40% | Absolute 24h price change, bigger swings = higher risk |
+| Liquidity | 30% | Volume / market cap ratio, thin liquidity = harder to exit |
+| Momentum | 30% | Price position in 24h range, near extremes = reversal risk |
 
 Each score comes with:
 - An **AI-generated trader insight** from Qwen explaining what the score means right now
@@ -44,7 +44,7 @@ Available as both a **visual dashboard** and a **free public API**.
 
 ## API Reference
 
-All endpoints are open — no API key, no signup, CORS enabled.
+All endpoints are open, no API key, no signup, CORS enabled.
 
 ### Single Token
 ```
@@ -79,7 +79,7 @@ GET https://pulseguard-two.vercel.app/api/risk-score?token=solana
 GET /api/risk-score?tokens=<id1>,<id2>,...
 ```
 
-Score multiple tokens in one request. Batch mode uses rule-based insights for speed — use single token for full AI insight.
+Score multiple tokens in one request. Batch mode uses rule-based insights for speed, use single token for full AI insight.
 
 **Example:**
 ```
@@ -173,7 +173,7 @@ Returns total number of risk checks performed across all users.
 | Single Token | Live risk score, breakdown bars, AI insight, price + 24h change |
 | Risk Contributors | Explainable breakdown showing what's driving each score |
 | Risk History | Timeline of last 10 scores for the checked token with trend arrows |
-| Trade Confidence | 0–100 confidence score with recommended max position size — labeled "Bitget Ready" |
+| Trade Confidence | 0–100 confidence score with recommended max position size, labeled "Bitget Ready" |
 | Compare | Side-by-side risk comparison of any two tokens with plain-English verdict |
 | Watchlist | Save up to 5 tokens, persists across visits |
 | Share Card | Screenshot-ready risk card + formatted Twitter/X post copy |
@@ -186,7 +186,7 @@ Returns total number of risk checks performed across all users.
 
 | Layer | Technology |
 |---|---|
-| Frontend | Vanilla HTML/CSS/JS — no framework, zero build step |
+| Frontend | Vanilla HTML/CSS/JS, no framework, zero build step |
 | Backend | Vercel Serverless Functions (Node.js ES modules) |
 | Market data | CoinGecko API (free tier, no key required) |
 | AI insights | Qwen (qwen-turbo) via Alibaba Cloud DashScope |
@@ -202,7 +202,7 @@ pulseguard/
 ├── index.html           # Dashboard UI
 ├── docs.html            # Developer API reference + playground
 ├── api/
-│   ├── risk-score.js    # Public risk API — single + batch (GET)
+│   ├── risk-score.js    # Public risk API, single + batch (GET)
 │   ├── insight.js       # AI insight + Redis tracking (POST)
 │   ├── pretrade.js      # Pre-trade risk check (POST)
 │   ├── history.js       # Risk score timeline (GET)
@@ -223,12 +223,12 @@ QWEN_API_KEY=your_dashscope_api_key   # Qwen AI insights
 KV_REST_API_URL=your_upstash_url      # Redis history + stats
 KV_REST_API_TOKEN=your_upstash_token  # Redis auth token
 ```
-3. Deploy to Vercel — zero config needed. `/api` functions are auto-detected
+3. Deploy to Vercel, zero config needed. `/api` functions are auto-detected
 4. Add the same environment variables in Vercel project settings
 5. Redeploy to pick up the env vars
 
-Without `QWEN_API_KEY`, PulseGuard falls back to rule-based summaries — dashboard and API still work fully.
-Without `KV_REST_API_URL`, history and stats are disabled gracefully — all other features still work.
+Without `QWEN_API_KEY`, PulseGuard falls back to rule-based summaries, dashboard and API still work fully.
+Without `KV_REST_API_URL`, history and stats are disabled gracefully, all other features still work.
 
 ---
 
