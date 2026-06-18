@@ -2,9 +2,9 @@
 
 **Real-time Risk Intelligence API for Crypto Trading**
 
-PulseGuard is a risk scoring engine built for traders and AI trading agents. It turns live market data into a structured 0–100 risk score, an AI-generated trader insight, and a pre-trade recommendation — all available through a free public API with no authentication required.
+PulseGuard is a risk scoring engine built for traders and AI trading agents. It turns live market data into a structured 0–100 risk score, an AI-generated trader insight, and a pre-trade recommendation all available through a free public API with no authentication required.
 
-Built for the **Bitget AI Base Camp Hackathon S1** — Trading Infrastructure track.
+Built for the **Bitget AI Base Camp Hackathon S1** - Trading Infrastructure track.
 
 🔗 **Live demo:** https://pulseguard-two.vercel.app
 📖 **API docs:** https://pulseguard-two.vercel.app/docs.html
