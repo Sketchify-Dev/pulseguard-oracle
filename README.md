@@ -6,7 +6,8 @@ PulseGuard is a risk scoring engine built for traders and AI trading agents. It 
 
 Built for the **Bitget AI Base Camp Hackathon S1** - Trading Infrastructure track.
 
-🔗 **Live demo:** https://pulseguard-two.vercel.app
+**Live demo:** https://pulseguard-two.vercel.app
+
 📖 **API docs:** https://pulseguard-two.vercel.app/docs.html
 
 ---
