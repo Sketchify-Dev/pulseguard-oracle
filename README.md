@@ -236,7 +236,7 @@ Without `KV_REST_API_URL`, history and stats are disabled gracefully; all other 
 
 **For traders:** instant visual risk reading on any token before entering a position, with Trade Confidence score and position size recommendation.
 
-**For AI agents:** one API call returns a structured risk signal — `risk_score`, `risk_level`, `risk_color`, `breakdown`, `ai_insight` — no auth, no setup, plug-and-play into any trading workflow.
+**For AI agents:** one API call returns a structured risk signal: `risk_score`, `risk_level`, `risk_color`, `breakdown`, `ai_insight` no auth, no setup, plug-and-play into any trading workflow.
 
 **For developers:** full API docs at `/docs.html` with a live playground to test every endpoint without leaving the browser.
 
@@ -263,7 +263,7 @@ Without `KV_REST_API_URL`, history and stats are disabled gracefully; all other 
 
 ## Team
 
-Built solo by **Sketchify Labs** ([@0xSketchify](https://x.com/0xSketchify)) for the Bitget AI Base Camp Hackathon S1 — Trading Infrastructure track, June 2026.
+Built solo by **Sketchify Labs** ([@0xSketchify](https://x.com/0xSketchify)) for the Bitget AI Base Camp Hackathon S1 - Trading Infrastructure track, June 2026.
 
 ## License
 
