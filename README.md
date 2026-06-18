@@ -177,8 +177,8 @@ Returns total number of risk checks performed across all users.
 | Compare | Side-by-side risk comparison of any two tokens with plain-English verdict |
 | Watchlist | Save up to 5 tokens, persists across visits |
 | Share Card | Screenshot-ready risk card + formatted Twitter/X post copy |
-| Pre-Trade Check | Enter token + trade size + portfolio — get flags, position analysis, AI verdict |
-| API Playground | Live endpoint tester built into the docs page — no Postman needed |
+| Pre-Trade Check | Enter token + trade size + portfolio; get flags, position analysis, AI verdict |
+| API Playground | Live endpoint tester built into the docs page, no Postman needed |
 
 ---
 
@@ -186,7 +186,7 @@ Returns total number of risk checks performed across all users.
 
 | Layer | Technology |
 |---|---|
-| Frontend | Vanilla HTML/CSS/JS, no framework, zero build step |
+| Frontend | Vanilla HTML/CSS/JS; no framework, zero build step |
 | Backend | Vercel Serverless Functions (Node.js ES modules) |
 | Market data | CoinGecko API (free tier, no key required) |
 | AI insights | Qwen (qwen-turbo) via Alibaba Cloud DashScope |
@@ -202,7 +202,7 @@ pulseguard/
 ├── index.html           # Dashboard UI
 ├── docs.html            # Developer API reference + playground
 ├── api/
-│   ├── risk-score.js    # Public risk API, single + batch (GET)
+│   ├── risk-score.js    # Public risk API; single + batch (GET)
 │   ├── insight.js       # AI insight + Redis tracking (POST)
 │   ├── pretrade.js      # Pre-trade risk check (POST)
 │   ├── history.js       # Risk score timeline (GET)
@@ -227,8 +227,8 @@ KV_REST_API_TOKEN=your_upstash_token  # Redis auth token
 4. Add the same environment variables in Vercel project settings
 5. Redeploy to pick up the env vars
 
-Without `QWEN_API_KEY`, PulseGuard falls back to rule-based summaries, dashboard and API still work fully.
-Without `KV_REST_API_URL`, history and stats are disabled gracefully, all other features still work.
+Without `QWEN_API_KEY`, PulseGuard falls back to rule-based summaries; dashboard and API still work fully.
+Without `KV_REST_API_URL`, history and stats are disabled gracefully; all other features still work.
 
 ---
 
