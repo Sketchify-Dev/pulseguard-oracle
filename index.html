@@ -3,21 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PulseGuard - AI Risk Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>PulseGuard Oracle - Live Risk Vitals</title>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:#07070f; --surface:#0f0f1a; --card:#13131f; --card2:#1a1a28;
-  --border:#ffffff0f; --border2:#ffffff18;
-  --text:#f0f0ff; --text-dim:#7b7b9d; --text-mid:#a0a0c0;
-  --accent:#7c6dfa; --accent2:#a78bfa;
-  --green:#22d87a; --yellow:#f5c542; --red:#ff4f6a;
-  --glow:rgba(124,109,250,0.15);
+  --bg:#040807; --surface:#0a1210; --card:#0d1613; --card2:#122019;
+  --border:#39ff880f; --border2:#39ff8822;
+  --text:#e8fff2; --text-dim:#5f8a75; --text-mid:#8fc9a8;
+  --accent:#39ff88; --accent2:#7dffb0;
+  --green:#39ff88; --yellow:#ffb020; --red:#ff3b5c;
+  --glow:rgba(57,255,136,0.15);
+  --font-display:'Chakra Petch',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --font-body:'Space Grotesk',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
-body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(124,109,250,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(124,109,250,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(57,255,136,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(57,255,136,0.035) 1px,transparent 1px),repeating-linear-gradient(180deg,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 2px,rgba(57,255,136,0.012) 3px,rgba(0,0,0,0) 4px);background-size:40px 40px,40px 40px,100% 4px;pointer-events:none;z-index:0;}
 .app{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:0 20px 80px;}
 
 /* Header */
@@ -25,7 +28,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
 .logo{display:flex;align-items:center;gap:10px;}
 .logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 20px var(--glow);}
-.logo-text{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:24px;background:linear-gradient(135deg,#fff 40%,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.logo-text{font-family:var(--font-display);font-weight:800;font-size:24px;background:linear-gradient(135deg,#fff 40%,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .stats-badge{font-size:11px;color:var(--accent2);background:rgba(124,109,250,0.1);border:1px solid rgba(124,109,250,0.2);padding:4px 10px;border-radius:20px;display:none;white-space:nowrap;}
 .stats-badge.show{display:block;}
 .header-sub{font-size:13px;color:var(--text-dim);}
@@ -47,7 +50,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .search-wrap input{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:13px 16px;color:var(--text);font-family:inherit;font-size:14px;outline:none;transition:border-color 0.15s;}
 .search-wrap input:focus{border-color:var(--accent);}
 .search-wrap input::placeholder{color:var(--text-dim);}
-.check-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:12px;padding:13px 22px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;cursor:pointer;letter-spacing:0.5px;box-shadow:0 4px 16px rgba(124,109,250,0.3);white-space:nowrap;}
+.check-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:12px;padding:13px 22px;font-family:var(--font-display);font-weight:700;font-size:16px;cursor:pointer;letter-spacing:0.5px;box-shadow:0 4px 16px rgba(124,109,250,0.3);white-space:nowrap;}
 .check-btn:active{opacity:0.85;}
 .full-btn{width:100%;margin-bottom:16px;}
 
@@ -64,18 +67,18 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .token-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;}
 .token-icon{width:48px;height:48px;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;border:1px solid var(--border2);overflow:hidden;flex-shrink:0;}
 .token-icon img{width:100%;height:100%;object-fit:cover;}
-.token-icon-fallback{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;color:var(--accent2);display:flex;align-items:center;justify-content:center;width:100%;height:100%;}
+.token-icon-fallback{font-family:var(--font-display);font-weight:800;font-size:15px;color:var(--accent2);display:flex;align-items:center;justify-content:center;width:100%;height:100%;}
 .token-name{font-size:18px;font-weight:700;}
 .token-symbol{font-size:12px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
 .price-row{display:flex;align-items:baseline;gap:10px;margin-bottom:16px;}
-.price{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:32px;}
+.price{font-family:var(--font-display);font-weight:700;font-size:32px;}
 .change{font-size:13px;padding:4px 12px;border-radius:20px;font-weight:600;}
 .change.pos{background:rgba(34,216,122,0.12);color:var(--green);}
 .change.neg{background:rgba(255,79,106,0.12);color:var(--red);}
 
 /* Momentum */
 .momentum-row{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
-.momentum-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:0.3px;font-family:'Barlow Condensed',sans-serif;}
+.momentum-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:0.3px;font-family:var(--font-display);}
 .m-rising{background:rgba(255,79,106,0.12);color:var(--red);border:1px solid rgba(255,79,106,0.25);}
 .m-falling{background:rgba(34,216,122,0.12);color:var(--green);border:1px solid rgba(34,216,122,0.25);}
 .m-stable{background:rgba(245,197,66,0.12);color:var(--yellow);border:1px solid rgba(245,197,66,0.25);}
@@ -84,9 +87,9 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .score-section{display:flex;align-items:center;gap:20px;margin-bottom:24px;padding-bottom:22px;border-bottom:1px solid var(--border);}
 .score-ring{width:108px;height:108px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .score-ring-inner{width:86px;height:86px;border-radius:50%;background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid var(--border);}
-.score-num{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:34px;line-height:1;}
+.score-num{font-family:var(--font-display);font-weight:800;font-size:34px;line-height:1;}
 .score-max{font-size:10px;color:var(--text-dim);margin-top:1px;}
-.score-level{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;letter-spacing:0.5px;margin-bottom:6px;}
+.score-level{font-family:var(--font-display);font-weight:800;font-size:22px;letter-spacing:0.5px;margin-bottom:6px;}
 .score-desc{font-size:13px;color:var(--text-dim);line-height:1.6;}
 
 /* Bars */
@@ -95,7 +98,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .bar-row:last-child{margin-bottom:0;}
 .bar-label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;font-weight:500;}
 .bar-label .name{color:var(--text-mid);}
-.bar-label .val{color:var(--text-dim);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;}
+.bar-label .val{color:var(--text-dim);font-family:var(--font-display);font-weight:700;font-size:14px;}
 .bar-track{background:var(--surface);border-radius:8px;height:7px;overflow:hidden;border:1px solid var(--border);}
 .bar-fill{height:100%;border-radius:8px;transition:width 0.8s cubic-bezier(0.4,0,0.2,1);background:linear-gradient(90deg,var(--accent),var(--accent2));}
 
@@ -124,11 +127,11 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .compare-card.winner::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),transparent);}
 .compare-card.loser{border-color:rgba(255,79,106,0.2);}
 .compare-token-header{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
-.compare-icon{width:30px;height:30px;border-radius:50%;background:var(--card2);border:1px solid var(--border2);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:10px;color:var(--accent2);}
+.compare-icon{width:30px;height:30px;border-radius:50%;background:var(--card2);border:1px solid var(--border2);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:10px;color:var(--accent2);}
 .compare-icon img{width:100%;height:100%;object-fit:cover;}
 .compare-name{font-size:13px;font-weight:700;}
 .compare-symbol{font-size:10px;color:var(--text-dim);text-transform:uppercase;}
-.compare-score-big{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:44px;line-height:1;margin-bottom:2px;}
+.compare-score-big{font-family:var(--font-display);font-weight:800;font-size:44px;line-height:1;margin-bottom:2px;}
 .compare-level{font-size:11px;font-weight:700;margin-bottom:12px;}
 .compare-bar-row{margin-bottom:7px;}
 .compare-bar-label{display:flex;justify-content:space-between;font-size:10px;margin-bottom:4px;color:var(--text-dim);}
@@ -145,12 +148,12 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .watchlist-grid{display:flex;flex-direction:column;gap:8px;}
 .watchlist-item{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all 0.15s;}
 .watchlist-item:hover{border-color:var(--accent);}
-.watchlist-icon{width:36px;height:36px;border-radius:50%;background:var(--card2);border:1px solid var(--border2);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:11px;color:var(--accent2);}
+.watchlist-icon{width:36px;height:36px;border-radius:50%;background:var(--card2);border:1px solid var(--border2);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:11px;color:var(--accent2);}
 .watchlist-icon img{width:100%;height:100%;object-fit:cover;}
 .watchlist-info{flex:1;min-width:0;}
 .watchlist-name{font-size:14px;font-weight:700;}
 .watchlist-meta{font-size:12px;color:var(--text-dim);margin-top:2px;}
-.watchlist-score{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:24px;flex-shrink:0;}
+.watchlist-score{font-family:var(--font-display);font-weight:800;font-size:24px;flex-shrink:0;}
 .watchlist-remove{font-size:18px;color:var(--text-dim);cursor:pointer;background:none;border:none;padding:0 0 0 4px;font-family:inherit;line-height:1;flex-shrink:0;}
 .watchlist-remove:hover{color:var(--red);}
 .watchlist-add-btn{width:100%;margin-top:10px;background:transparent;border:1px dashed var(--border2);color:var(--text-dim);border-radius:14px;padding:12px;font-size:13px;cursor:pointer;font-family:inherit;transition:all 0.15s;letter-spacing:0;}
@@ -160,8 +163,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .pretrade-result{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:22px;margin-bottom:14px;position:relative;overflow:hidden;}
 .pretrade-result::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0.4;}
 .pretrade-score-section{display:flex;align-items:center;gap:16px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border);}
-.pretrade-score-num{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:52px;line-height:1;}
-.pretrade-level{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;letter-spacing:0.5px;}
+.pretrade-score-num{font-family:var(--font-display);font-weight:800;font-size:52px;line-height:1;}
+.pretrade-level{font-family:var(--font-display);font-weight:800;font-size:20px;letter-spacing:0.5px;}
 .position-box{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:16px;margin-bottom:14px;}
 .position-title{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-dim);font-weight:600;margin-bottom:12px;}
 .position-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;}
@@ -183,41 +186,41 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;backdrop-filter:blur(4px);}
 .modal-overlay.hidden{display:none;}
 .modal-box{background:var(--card);border:1px solid var(--border2);border-radius:24px;padding:24px;width:100%;max-width:400px;}
-.modal-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;margin-bottom:18px;}
+.modal-title{font-family:var(--font-display);font-weight:800;font-size:22px;margin-bottom:18px;}
 .share-preview{background:var(--bg);border:1px solid var(--border2);border-radius:18px;padding:22px;margin-bottom:14px;position:relative;overflow:hidden;}
 .share-preview::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0.5;}
 .share-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
-.share-icon{width:44px;height:44px;border-radius:50%;background:var(--card2);border:1px solid var(--border2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;color:var(--accent2);}
+.share-icon{width:44px;height:44px;border-radius:50%;background:var(--card2);border:1px solid var(--border2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:13px;color:var(--accent2);}
 .share-icon img{width:100%;height:100%;object-fit:cover;}
 .share-token-name{font-size:17px;font-weight:700;}
 .share-token-symbol{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;}
-.share-score{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:72px;line-height:1;margin-bottom:2px;}
-.share-level{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;letter-spacing:1px;margin-bottom:14px;}
+.share-score{font-family:var(--font-display);font-weight:800;font-size:72px;line-height:1;margin-bottom:2px;}
+.share-level{font-family:var(--font-display);font-weight:700;font-size:20px;letter-spacing:1px;margin-bottom:14px;}
 .share-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
 .share-stat{background:var(--card);border-radius:10px;padding:10px;text-align:center;border:1px solid var(--border);}
 .share-stat-label{font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
-.share-stat-val{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;color:var(--accent2);}
+.share-stat-val{font-family:var(--font-display);font-weight:800;font-size:18px;color:var(--accent2);}
 .share-footer{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--border);}
 .share-price{font-size:13px;font-weight:600;}
 .share-brand{font-size:11px;color:var(--text-dim);}
 .modal-hint{font-size:12px;color:var(--text-dim);margin-bottom:14px;text-align:center;}
 .modal-actions{display:flex;gap:8px;}
-.modal-btn{flex:1;padding:13px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;border:none;}
+.modal-btn{flex:1;padding:13px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-display);letter-spacing:0.5px;border:none;}
 .modal-btn-close{background:var(--surface);border:1px solid var(--border2);color:var(--text-dim);}
 .modal-btn-copy{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}
 
 /* API section */
 .api-section{margin-top:32px;background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:22px;}
-.api-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;margin-bottom:6px;}
+.api-title{font-family:var(--font-display);font-weight:800;font-size:18px;margin-bottom:6px;}
 .api-desc{font-size:13px;color:var(--text-dim);margin-bottom:16px;}
 .api-endpoints{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
 .api-endpoint{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;cursor:pointer;transition:all 0.15s;}
 .api-endpoint:hover{border-color:var(--accent);}
-.api-method{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--accent2);background:rgba(124,109,250,0.12);border-radius:6px;padding:3px 8px;flex-shrink:0;letter-spacing:0.5px;}
-.api-path{font-family:monospace;font-size:12px;color:var(--text-mid);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.api-method{font-family:var(--font-display);font-weight:700;font-size:12px;color:var(--accent2);background:rgba(124,109,250,0.12);border-radius:6px;padding:3px 8px;flex-shrink:0;letter-spacing:0.5px;}
+.api-path{font-family:var(--font-mono);font-size:12px;color:var(--text-mid);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .api-arrow{font-size:14px;color:var(--text-dim);flex-shrink:0;}
 .api-response-label{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin-bottom:10px;}
-.api-response{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px 16px;font-family:monospace;font-size:12px;line-height:1.9;overflow-x:auto;}
+.api-response{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px 16px;font-family:var(--font-mono);font-size:12px;line-height:1.9;overflow-x:auto;}
 .json-key{color:var(--accent2);}
 .json-str{color:var(--green);}
 .json-num{color:var(--yellow);}
@@ -225,7 +228,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 /* Empty + error states */
 .empty-state{text-align:center;padding:48px 20px;background:var(--surface);border:1px solid var(--border);border-radius:20px;margin-bottom:16px;}
 .empty-icon{font-size:48px;margin-bottom:16px;display:block;}
-.empty-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;margin-bottom:8px;}
+.empty-title{font-family:var(--font-display);font-weight:700;font-size:22px;margin-bottom:8px;}
 .empty-desc{font-size:14px;color:var(--text-dim);line-height:1.6;margin-bottom:20px;}
 .empty-features{display:flex;flex-direction:column;gap:8px;text-align:left;}
 .empty-feature{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-mid);background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;}
@@ -238,7 +241,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   .contributors-title { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin-bottom: 12px; }
   .contributor-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
   .contributor-label { font-size: 13px; color: var(--text-mid); flex: 1; }
-  .contributor-val { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; color: var(--accent2); min-width: 36px; text-align: right; }
+  .contributor-val { font-family:var(--font-display); font-weight: 700; font-size: 14px; color: var(--accent2); min-width: 36px; text-align: right; }
   .contributor-bar-wrap { flex: 1; height: 5px; background: var(--surface); border-radius: 4px; overflow: hidden; }
   .contributor-bar { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.8s cubic-bezier(0.4,0,0.2,1); }
 
@@ -247,10 +250,10 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   .trade-confidence-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--accent2), transparent); }
   .tc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .tc-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent2); font-weight: 600; display: flex; align-items: center; gap: 6px; }
-  .tc-bitget { font-size: 10px; color: var(--text-dim); background: rgba(124,109,250,0.1); border: 1px solid rgba(124,109,250,0.2); padding: 3px 8px; border-radius: 6px; letter-spacing: 0.5px; }
+  .tc-badge { font-size: 10px; color: var(--text-dim); background: rgba(57,255,136,0.1); border: 1px solid rgba(57,255,136,0.2); padding: 3px 8px; border-radius: 6px; letter-spacing: 0.5px; }
   .tc-score-row { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
-  .tc-score-num { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 52px; line-height: 1; }
-  .tc-score-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 18px; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .tc-score-num { font-family:var(--font-display); font-weight: 800; font-size: 52px; line-height: 1; }
+  .tc-score-label { font-family:var(--font-display); font-weight: 700; font-size: 18px; letter-spacing: 0.5px; margin-bottom: 4px; }
   .tc-score-sub { font-size: 12px; color: var(--text-dim); }
   .tc-bar-wrap { height: 8px; background: var(--surface); border-radius: 8px; overflow: hidden; margin-bottom: 16px; border: 1px solid var(--border); }
   .tc-bar-fill { height: 100%; border-radius: 8px; transition: width 1s cubic-bezier(0.4,0,0.2,1); }
@@ -317,7 +320,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     flex-shrink: 0;
   }
   .history-score {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family:var(--font-display);
     font-weight: 800;
     font-size: 18px;
     min-width: 32px;
@@ -333,7 +336,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     font-size: 11px;
     color: var(--text-dim);
     flex-shrink: 0;
-    font-family: monospace;
+    font-family:var(--font-mono);
   }
   .history-trend {
     display: flex;
@@ -352,6 +355,14 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     padding: 12px;
   }
 
+  /* Logo refinement */
+  .logo-oracle{font-weight:500;opacity:0.55;font-size:0.8em;letter-spacing:0.5px;}
+
+  /* Pulse strip — signature element: idle flatline, spikes with last risk check */
+  .pulse-strip{width:100%;height:44px;margin-bottom:20px;border-radius:12px;background:var(--surface);border:1px solid var(--border);overflow:hidden;position:relative;}
+  .pulse-strip::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,var(--surface) 0%,transparent 8%,transparent 92%,var(--surface) 100%);pointer-events:none;}
+  .pulse-strip canvas{width:100%;height:100%;display:block;}
+
 </style>
 </head>
 <body>
@@ -360,13 +371,15 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <div class="header">
     <div class="header-top">
       <div class="logo">
-        <div class="logo-icon">⚡</div>
-        <div class="logo-text">PulseGuard</div>
+        <div class="logo-icon">🫀</div>
+        <div class="logo-text">PulseGuard <span class="logo-oracle">Oracle</span></div>
       </div>
       <div class="stats-badge" id="statsBadge"></div>
     </div>
-    <div class="header-sub">Real-time Risk Intelligence API for Crypto Trading &nbsp;·&nbsp; <a href="/docs.html">API Docs ↗</a></div>
+    <div class="header-sub">Live risk vitals for any token — built for traders and AI agents &nbsp;·&nbsp; <a href="/docs.html">API Docs ↗</a></div>
   </div>
+
+  <div class="pulse-strip"><canvas id="pulseCanvas"></canvas></div>
 
   <div class="mode-tabs">
     <div class="mode-tab active" id="tabSingle" onclick="setMode('single')">Single</div>
@@ -476,7 +489,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     </div>
     <div class="api-response-label">Example response</div>
     <div class="api-response">
-      <span class="json-key">"risk_score"</span>: <span class="json-num">43</span>, <span class="json-key">"risk_level"</span>: <span class="json-str">"Medium"</span>, <span class="json-key">"risk_color"</span>: <span class="json-str">"#f5c542"</span>,<br>
+      <span class="json-key">"risk_score"</span>: <span class="json-num">43</span>, <span class="json-key">"risk_level"</span>: <span class="json-str">"Medium"</span>, <span class="json-key">"risk_color"</span>: <span class="json-str">"#ffb020"</span>,<br>
       <span class="json-key">"breakdown"</span>: { <span class="json-key">"volatility"</span>: <span class="json-num">4</span>, <span class="json-key">"liquidity"</span>: <span class="json-num">20</span>, <span class="json-key">"momentum"</span>: <span class="json-num">18</span> },<br>
       <span class="json-key">"ai_insight"</span>: <span class="json-str">"Solana shows moderate risk..."</span>
     </div>
@@ -495,6 +508,64 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 // ─────────────────────────────────────────
 let currentMode = 'single';
 let _lastData = null, _lastRisk = null, _lastInsight = '';
+
+// ─────────────────────────────────────────
+// PULSE STRIP — signature vitals-monitor waveform
+// Idle: calm green flatline. After a check: amplitude/color reflect
+// the last risk score, with a heartbeat-style spike on update.
+// ─────────────────────────────────────────
+var pulseCanvas = document.getElementById('pulseCanvas');
+var pctx = pulseCanvas ? pulseCanvas.getContext('2d') : null;
+var pulseAmplitude = 2.5, pulseColor = '#39ff88', pulseSpike = 0, pulseT = 0;
+
+function resizePulseCanvas() {
+  if (!pulseCanvas) return;
+  var dpr = window.devicePixelRatio || 1;
+  pulseCanvas.width = pulseCanvas.offsetWidth * dpr;
+  pulseCanvas.height = pulseCanvas.offsetHeight * dpr;
+}
+window.addEventListener('resize', resizePulseCanvas);
+
+function colorForLevel(level) {
+  if (!level) return '#39ff88';
+  var l = level.toLowerCase();
+  if (l.includes('low')) return '#39ff88';
+  if (l.includes('high')) return '#ff3b5c';
+  return '#ffb020';
+}
+
+function updatePulseWave(score, level) {
+  pulseColor = colorForLevel(level);
+  pulseAmplitude = 2.5 + (score || 0) * 0.2;
+  pulseSpike = 12 + (score || 0) * 0.25;
+}
+
+function drawPulse() {
+  if (pctx && pulseCanvas.width > 0) {
+    var w = pulseCanvas.width, h = pulseCanvas.height, dpr = window.devicePixelRatio || 1;
+    pctx.clearRect(0, 0, w, h);
+    pctx.strokeStyle = pulseColor;
+    pctx.lineWidth = 2 * dpr;
+    pctx.shadowColor = pulseColor;
+    pctx.shadowBlur = 6 * dpr;
+    pctx.beginPath();
+    var mid = h / 2;
+    for (var x = 0; x <= w; x += 2) {
+      var t = (x + pulseT) * 0.045;
+      var y = mid + Math.sin(t) * pulseAmplitude * dpr * 0.5;
+      if (pulseSpike > 1 && Math.floor((x + pulseT) / 3) % 80 === 0) {
+        y -= pulseSpike * dpr;
+      }
+      if (x === 0) pctx.moveTo(x, y); else pctx.lineTo(x, y);
+    }
+    pctx.stroke();
+    pulseT += 2.4;
+    if (pulseSpike > 0.3) pulseSpike *= 0.985; else pulseSpike = 0;
+  }
+  requestAnimationFrame(drawPulse);
+}
+resizePulseCanvas();
+drawPulse();
 
 // ─────────────────────────────────────────
 // MODE SWITCHING
@@ -610,14 +681,14 @@ function openShare() {
   var m = _lastData.market_data;
   var priceS = m.current_price.usd >= 1 ? '$' + m.current_price.usd.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) : '$' + m.current_price.usd.toFixed(6);
   var isPos = (m.price_change_percentage_24h || 0) >= 0;
-  var colorHex = _lastRisk.level === 'Low Risk' ? '#22d87a' : _lastRisk.level === 'Medium Risk' ? '#f5c542' : '#ff4f6a';
+  var colorHex = _lastRisk.level === 'Low Risk' ? '#39ff88' : _lastRisk.level === 'Medium Risk' ? '#ffb020' : '#ff3b5c';
   var imgH = _lastData.image && _lastData.image.small ? '<img src="' + _lastData.image.small + '" style="width:100%;height:100%;object-fit:cover">' : _lastData.symbol.substring(0,3).toUpperCase();
   document.getElementById('sharePreview').innerHTML =
     '<div class="share-header"><div class="share-icon">' + imgH + '</div><div><div class="share-token-name">' + _lastData.name + '</div><div class="share-token-symbol">' + _lastData.symbol.toUpperCase() + '</div></div></div>' +
     '<div class="share-score" style="color:' + colorHex + '">' + _lastRisk.total + '</div>' +
     '<div class="share-level" style="color:' + colorHex + '">' + _lastRisk.level.toUpperCase() + '</div>' +
     '<div class="share-stats"><div class="share-stat"><div class="share-stat-label">Volatility</div><div class="share-stat-val">' + _lastRisk.breakdown.volatility + '/40</div></div><div class="share-stat"><div class="share-stat-label">Liquidity</div><div class="share-stat-val">' + _lastRisk.breakdown.liquidity + '/30</div></div><div class="share-stat"><div class="share-stat-label">Momentum</div><div class="share-stat-val">' + _lastRisk.breakdown.momentum + '/30</div></div></div>' +
-    '<div class="share-footer"><div class="share-price">' + priceS + ' &nbsp;<span style="color:' + (isPos ? '#22d87a' : '#ff4f6a') + '">' + (isPos ? '+' : '') + (m.price_change_percentage_24h || 0).toFixed(2) + '% 24h</span></div><div class="share-brand">pulseguard-two.vercel.app</div></div>';
+    '<div class="share-footer"><div class="share-price">' + priceS + ' &nbsp;<span style="color:' + (isPos ? '#39ff88' : '#ff3b5c') + '">' + (isPos ? '+' : '') + (m.price_change_percentage_24h || 0).toFixed(2) + '% 24h</span></div><div class="share-brand">pulseguard-two.vercel.app</div></div>';
   document.getElementById('shareModal').classList.remove('hidden');
 }
 function closeShare() { document.getElementById('shareModal').classList.add('hidden'); }
@@ -626,7 +697,7 @@ function copyShareText() {
   var m = _lastData.market_data;
   var priceS = m.current_price.usd >= 1 ? '$' + m.current_price.usd.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) : '$' + m.current_price.usd.toFixed(6);
   var emoji = _lastRisk.level === 'Low Risk' ? '🟢' : _lastRisk.level === 'Medium Risk' ? '🟡' : '🔴';
-  var text = emoji + ' ' + _lastData.name + ' (' + _lastData.symbol.toUpperCase() + ') Risk Score: ' + _lastRisk.total + '/100 - ' + _lastRisk.level + '\n\nVolatility: ' + _lastRisk.breakdown.volatility + '/40\nLiquidity Risk: ' + _lastRisk.breakdown.liquidity + '/30\nMomentum: ' + _lastRisk.breakdown.momentum + '/30\n\nPrice: ' + priceS + (_lastInsight ? '\n\n' + _lastInsight : '') + '\n\nPowered by PulseGuard ⚡\npulseguard-two.vercel.app\n\n#PulseGuard #crypto #DeFi';
+  var text = emoji + ' ' + _lastData.name + ' (' + _lastData.symbol.toUpperCase() + ') Risk Score: ' + _lastRisk.total + '/100 - ' + _lastRisk.level + '\n\nVolatility: ' + _lastRisk.breakdown.volatility + '/40\nLiquidity Risk: ' + _lastRisk.breakdown.liquidity + '/30\nMomentum: ' + _lastRisk.breakdown.momentum + '/30\n\nPrice: ' + priceS + (_lastInsight ? '\n\n' + _lastInsight : '') + '\n\nPowered by PulseGuard Oracle 🫀\npulseguard-two.vercel.app\n\n#OKXAI #PulseGuardOracle #DeFi';
   navigator.clipboard.writeText(text).then(function() {
     var btn = document.getElementById('copyBtn');
     btn.textContent = '✓ Copied!';
@@ -740,6 +811,7 @@ async function run() {
     var isPos = (m.price_change_percentage_24h || 0) >= 0;
     var ps = priceStr(m.current_price.usd);
     _lastData = data; _lastRisk = risk; _lastInsight = fb;
+    updatePulseWave(risk.total, risk.level);
     var inWL = !!getWatchlist().find(function(t) { return t.id === data.id; });
     var momentumHTML = getMomentumBadge(data.id, risk.total);
 
@@ -749,7 +821,7 @@ async function run() {
         '<div class="price-row"><div class="price">' + ps + '</div><div class="change ' + (isPos ? 'pos' : 'neg') + '">' + (isPos ? '+' : '') + (m.price_change_percentage_24h || 0).toFixed(2) + '% 24h</div></div>' +
         momentumHTML +
         '<div class="score-section">' +
-          '<div class="score-ring" style="background:conic-gradient(' + risk.color + ' ' + (risk.total*3.6) + 'deg,#1a1a28 0deg)">' +
+          '<div class="score-ring" style="background:conic-gradient(' + risk.color + ' ' + (risk.total*3.6) + 'deg,#122019 0deg)">' +
             '<div class="score-ring-inner"><div class="score-num" style="color:' + risk.color + '">' + risk.total + '</div><div class="score-max">/ 100</div></div>' +
           '</div>' +
           '<div><div class="score-level" style="color:' + risk.color + '">' + risk.level + '</div><div class="score-desc">' + fb + '</div></div>' +
@@ -803,6 +875,7 @@ async function runCompare() {
     var dA = results[0], dB = results[1];
     var rA = calcRisk(dA.market_data), rB = calcRisk(dB.market_data);
     var winA = rA.total <= rB.total;
+    updatePulseWave(Math.max(rA.total, rB.total), Math.max(rA.total, rB.total) > 66 ? 'High' : Math.max(rA.total, rB.total) > 33 ? 'Medium' : 'Low');
     function cc(data, risk, isWinner) {
       var img = data.image && data.image.small ? '<img src="' + data.image.small + '" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">' : data.symbol.substring(0,3).toUpperCase();
       return '<div class="compare-card ' + (isWinner ? 'winner' : 'loser') + '">' +
@@ -846,7 +919,8 @@ async function runPretrade() {
     });
     var data = await res.json();
     if (data.error) throw new Error(data.error);
-    var colorHex = data.risk_color || '#f5c542';
+    var colorHex = data.risk_color || '#ffb020';
+    updatePulseWave(data.risk_score, data.risk_level);
     var flagIcons = { high: '🔴', medium: '🟡', low: '🟢' };
     var imgH = data.token.image ? '<img src="' + data.token.image + '" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">' : (data.token.symbol || '?').substring(0,3).toUpperCase();
     var posHTML = '';
@@ -916,7 +990,7 @@ function buildContributors(risk) {
 }
 
 // ─────────────────────────────────────────
-// TRADE CONFIDENCE SCORE (Bitget angle)
+// TRADE CONFIDENCE SCORE
 // ─────────────────────────────────────────
 function buildTradeConfidence(data, risk) {
   var m = data.market_data;
@@ -956,7 +1030,7 @@ function buildTradeConfidence(data, risk) {
   return '<div class="trade-confidence-card">' +
     '<div class="tc-header">' +
       '<div class="tc-label"><span class="ai-dot"></span>Trade Confidence</div>' +
-      '<div class="tc-bitget">⚡ Bitget Ready</div>' +
+      '<div class="tc-badge">🤖 OKX.AI Ready</div>' +
     '</div>' +
     '<div class="tc-score-row">' +
       '<div class="tc-score-num" style="color:' + confidenceColor + '">' + baseConfidence + '</div>' +
