@@ -1,6 +1,6 @@
 // GET /api/metadata
-// A2MCP discovery endpoint — OKX.AI reads this to list and describe the service.
-// Keep this in sync with whatever you enter during ASP registration.
+// A2MCP discovery endpoint — describes PulseGuard's EXISTING /api/risk-score
+// endpoint. This file only ADDS a new route; it does not touch risk-score.js.
 
 export default function handler(req, res) {
   res.setHeader("Cache-Control", "public, max-age=300");
@@ -9,8 +9,8 @@ export default function handler(req, res) {
     tagline: "The second opinion your agent gets before it apes in.",
     description:
       "Real-time crypto risk intelligence. Feed it a token, get back a 0-100 " +
-      "risk score built from volatility, liquidity depth, and momentum — plus " +
-      "a plain-language verdict an agent (or a human) can act on in one read.",
+      "risk score built from volatility, liquidity, and 24h momentum — plus " +
+      "a Qwen-generated plain-language read an agent can act on immediately.",
     category: "Finance Copilot",
     version: "1.0.0",
     provider: {
@@ -18,44 +18,63 @@ export default function handler(req, res) {
       contact: "sketchifydev@gmail.com"
     },
     pricing: {
-      type: "free" // switch to "x402" later for a paid tier
+      type: "free"
     },
     endpoints: [
       {
         name: "risk-score",
-        method: "POST",
+        method: "GET",
         path: "/api/risk-score",
         description:
-          "Returns a risk score (0-100), a risk band (Low/Medium/High/Extreme), " +
-          "a one-line verdict, and the three sub-scores that built it.",
+          "Single-token risk check. Returns a 0-100 risk score, a risk level " +
+          "(Low/Medium/High), a breakdown of the three weighted signals, and " +
+          "an AI-generated plain-English verdict.",
         input_schema: {
           type: "object",
           properties: {
-            token_id: {
+            token: {
               type: "string",
               description:
-                "CoinGecko token id, e.g. 'bitcoin', 'ethereum', 'solana'."
+                "CoinGecko ID, name, or symbol — e.g. 'solana', 'btc', 'bonk'."
             }
           },
-          required: ["token_id"]
+          required: ["token"]
         },
         output_schema: {
           type: "object",
           properties: {
-            token: { type: "string" },
+            token: { type: "object" },
+            price: { type: "number" },
+            change_24h: { type: "number" },
             risk_score: { type: "number", description: "0 (safest) - 100 (riskiest)" },
-            risk_band: { type: "string", enum: ["Low", "Medium", "High", "Extreme"] },
-            verdict: { type: "string" },
+            risk_level: { type: "string", enum: ["Low", "Medium", "High"] },
             breakdown: {
               type: "object",
               properties: {
                 volatility: { type: "number" },
-                liquidity_risk: { type: "number" },
+                liquidity: { type: "number" },
                 momentum: { type: "number" }
               }
             },
-            generated_at: { type: "string" }
+            ai_insight: { type: "string" }
           }
+        }
+      },
+      {
+        name: "pretrade",
+        method: "POST",
+        path: "/api/pretrade",
+        description:
+          "Pre-trade risk check with position sizing. Pass a trade amount and " +
+          "portfolio value; get back an over-exposure warning and AI verdict.",
+        input_schema: {
+          type: "object",
+          properties: {
+            token: { type: "string" },
+            amount: { type: "number", description: "USD value of intended trade (optional)" },
+            portfolio_value: { type: "number", description: "Total portfolio size in USD (optional)" }
+          },
+          required: ["token"]
         }
       }
     ]
