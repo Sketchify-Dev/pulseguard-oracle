@@ -3,57 +3,57 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PulseGuard API Docs</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>PulseGuard Oracle — API Docs</title>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#07070f; --surface:#0f0f1a; --card:#13131f; --border:#ffffff0f; --border2:#ffffff18; --text:#f0f0ff; --text-dim:#7b7b9d; --text-mid:#a0a0c0; --accent:#7c6dfa; --accent2:#a78bfa; --green:#22d87a; --yellow:#f5c542; --red:#ff4f6a; }
+  :root { --bg:#040807; --surface:#0a1210; --card:#0d1613; --border:#39ff880f; --border2:#39ff8822; --text:#e8fff2; --text-dim:#5f8a75; --text-mid:#8fc9a8; --accent:#39ff88; --accent2:#7dffb0; --green:#39ff88; --yellow:#ffb020; --red:#ff3b5c; --font-display:'Chakra Petch',sans-serif; --font-mono:'JetBrains Mono',monospace; --font-body:'Space Grotesk',sans-serif; }
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:'Space Grotesk',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
-  body::before { content:''; position:fixed; inset:0; background-image:linear-gradient(rgba(124,109,250,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(124,109,250,0.03) 1px,transparent 1px); background-size:40px 40px; pointer-events:none; z-index:0; }
+  body { font-family:var(--font-body); background:var(--bg); color:var(--text); min-height:100vh; }
+  body::before { content:''; position:fixed; inset:0; background-image:linear-gradient(rgba(57,255,136,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(57,255,136,0.035) 1px,transparent 1px),repeating-linear-gradient(180deg,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 2px,rgba(57,255,136,0.012) 3px,rgba(0,0,0,0) 4px); background-size:40px 40px,40px 40px,100% 4px; pointer-events:none; z-index:0; }
   .wrap { position:relative; z-index:1; max-width:720px; margin:0 auto; padding:40px 24px 80px; }
 
   /* Nav */
   .nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:48px; }
   .nav-logo { display:flex; align-items:center; gap:10px; text-decoration:none; }
   .nav-icon { width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; font-size:16px; }
-  .nav-name { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:20px; background:linear-gradient(135deg,#fff 40%,var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-  .nav-link { font-size:13px; color:var(--accent2); text-decoration:none; border:1px solid rgba(124,109,250,0.3); padding:7px 14px; border-radius:8px; }
-  .nav-link:hover { background:rgba(124,109,250,0.1); }
+  .nav-name { font-family:var(--font-display); font-weight:800; font-size:20px; background:linear-gradient(135deg,#fff 40%,var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .nav-link { font-size:13px; color:var(--accent2); text-decoration:none; border:1px solid rgba(57,255,136,0.3); padding:7px 14px; border-radius:8px; }
+  .nav-link:hover { background:rgba(57,255,136,0.1); }
 
   /* Hero */
   .hero { margin-bottom:48px; }
   .hero-tag { font-size:11px; text-transform:uppercase; letter-spacing:2px; color:var(--accent2); font-weight:600; margin-bottom:12px; }
-  .hero-title { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:42px; line-height:1.1; margin-bottom:14px; background:linear-gradient(135deg,#fff 50%,var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .hero-title { font-family:var(--font-display); font-weight:800; font-size:42px; line-height:1.1; margin-bottom:14px; background:linear-gradient(135deg,#fff 50%,var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
   .hero-desc { font-size:15px; color:var(--text-mid); line-height:1.7; max-width:560px; }
 
   /* Base URL */
   .base-url { background:var(--surface); border:1px solid var(--border2); border-radius:12px; padding:14px 18px; margin-bottom:40px; display:flex; align-items:center; gap:12px; }
   .base-label { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); font-weight:600; flex-shrink:0; }
-  .base-val { font-family:monospace; font-size:13px; color:var(--accent2); }
+  .base-val { font-family:var(--font-mono); font-size:13px; color:var(--accent2); }
 
   /* Section */
   .section { margin-bottom:48px; }
-  .section-title { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:24px; margin-bottom:6px; }
+  .section-title { font-family:var(--font-display); font-weight:800; font-size:24px; margin-bottom:6px; }
   .section-desc { font-size:13px; color:var(--text-dim); margin-bottom:20px; line-height:1.6; }
 
   /* Endpoint card */
   .endpoint { background:var(--surface); border:1px solid var(--border2); border-radius:16px; margin-bottom:20px; overflow:hidden; }
   .endpoint-header { display:flex; align-items:center; gap:12px; padding:16px 20px; border-bottom:1px solid var(--border); }
-  .method { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:13px; letter-spacing:1px; padding:4px 10px; border-radius:6px; flex-shrink:0; }
-  .method.get { background:rgba(34,216,122,0.12); color:var(--green); }
-  .method.post { background:rgba(124,109,250,0.12); color:var(--accent2); }
-  .endpoint-path { font-family:monospace; font-size:14px; color:var(--text); flex:1; }
+  .method { font-family:var(--font-display); font-weight:700; font-size:13px; letter-spacing:1px; padding:4px 10px; border-radius:6px; flex-shrink:0; }
+  .method.get { background:rgba(57,255,136,0.12); color:var(--green); }
+  .method.post { background:rgba(57,255,136,0.12); color:var(--accent2); }
+  .endpoint-path { font-family:var(--font-mono); font-size:14px; color:var(--text); flex:1; }
   .endpoint-desc { font-size:12px; color:var(--text-dim); flex-shrink:0; }
   .endpoint-body { padding:20px; }
   .param-title { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); font-weight:600; margin-bottom:12px; }
   .param-row { display:flex; align-items:flex-start; gap:12px; margin-bottom:10px; font-size:13px; }
-  .param-name { font-family:monospace; color:var(--accent2); flex-shrink:0; min-width:160px; }
+  .param-name { font-family:var(--font-mono); color:var(--accent2); flex-shrink:0; min-width:160px; }
   .param-type { font-size:11px; color:var(--text-dim); background:var(--card); border-radius:4px; padding:2px 6px; flex-shrink:0; }
   .param-desc { color:var(--text-mid); line-height:1.5; }
-  .required { font-size:10px; color:var(--red); background:rgba(255,79,106,0.1); border-radius:4px; padding:2px 6px; flex-shrink:0; }
+  .required { font-size:10px; color:var(--red); background:rgba(255,59,92,0.1); border-radius:4px; padding:2px 6px; flex-shrink:0; }
 
   /* Code block */
-  .code-block { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px; margin-top:14px; font-family:monospace; font-size:12px; line-height:1.9; overflow-x:auto; }
+  .code-block { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px; margin-top:14px; font-family:var(--font-mono); font-size:12px; line-height:1.9; overflow-x:auto; }
   .code-label { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); font-weight:600; margin-bottom:8px; }
   .json-key { color:var(--accent2); }
   .json-str { color:var(--green); }
@@ -66,8 +66,8 @@
   .flag-low { color:var(--green); }
 
   /* Try it button */
-  .try-btn { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--accent2); border:1px solid rgba(124,109,250,0.3); padding:6px 12px; border-radius:8px; text-decoration:none; margin-top:14px; cursor:pointer; background:none; font-family:inherit; transition:all 0.15s; }
-  .try-btn:hover { background:rgba(124,109,250,0.1); }
+  .try-btn { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--accent2); border:1px solid rgba(57,255,136,0.3); padding:6px 12px; border-radius:8px; text-decoration:none; margin-top:14px; cursor:pointer; background:none; font-family:inherit; transition:all 0.15s; }
+  .try-btn:hover { background:rgba(57,255,136,0.1); }
 
   /* Features grid */
   .features { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px; }
@@ -82,14 +82,14 @@
 
   /* API Playground */
   .playground { background: var(--surface); border: 1px solid var(--border2); border-radius: 20px; padding: 24px; margin-bottom: 32px; }
-  .playground-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 22px; margin-bottom: 6px; }
+  .playground-title { font-family:var(--font-display); font-weight: 800; font-size: 22px; margin-bottom: 6px; }
   .playground-desc { font-size: 13px; color: var(--text-dim); margin-bottom: 20px; }
   .playground-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-  .pg-method { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; padding: 12px 16px; border-radius: 10px; background: rgba(34,216,122,0.12); color: var(--green); border: 1px solid rgba(34,216,122,0.25); flex-shrink: 0; display: flex; align-items: center; }
-  .pg-method.post { background: rgba(124,109,250,0.12); color: var(--accent2); border-color: rgba(124,109,250,0.25); }
+  .pg-method { font-family:var(--font-display); font-weight: 700; font-size: 14px; padding: 12px 16px; border-radius: 10px; background: rgba(57,255,136,0.12); color: var(--green); border: 1px solid rgba(57,255,136,0.25); flex-shrink: 0; display: flex; align-items: center; }
+  .pg-method.post { background: rgba(57,255,136,0.12); color: var(--accent2); border-color: rgba(57,255,136,0.25); }
   .pg-input { flex: 1; min-width: 200px; background: var(--card); border: 1px solid var(--border2); border-radius: 10px; padding: 12px 16px; color: var(--text); font-family: monospace; font-size: 13px; outline: none; }
   .pg-input:focus { border-color: var(--accent); }
-  .pg-btn { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; border: none; border-radius: 10px; padding: 12px 20px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; cursor: pointer; letter-spacing: 0.5px; white-space: nowrap; }
+  .pg-btn { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; border: none; border-radius: 10px; padding: 12px 20px; font-family:var(--font-display); font-weight: 700; font-size: 15px; cursor: pointer; letter-spacing: 0.5px; white-space: nowrap; }
   .pg-btn:active { opacity: 0.85; }
   .pg-presets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
   .pg-preset { font-size: 12px; padding: 5px 12px; border-radius: 8px; border: 1px solid var(--border2); background: var(--card); color: var(--text-dim); cursor: pointer; font-family: monospace; transition: all 0.15s; }
@@ -114,16 +114,16 @@
 
   <nav class="nav">
     <a href="/" class="nav-logo">
-      <div class="nav-icon">⚡</div>
-      <div class="nav-name">PulseGuard</div>
+      <div class="nav-icon">🫀</div>
+      <div class="nav-name">PulseGuard Oracle</div>
     </a>
     <a href="/" class="nav-link">← Back to Dashboard</a>
   </nav>
 
   <div class="hero">
-    <div class="hero-tag">API Reference</div>
-    <div class="hero-title">Risk Intelligence API</div>
-    <div class="hero-desc">Free, open, no auth required. Any AI agent, trading bot, or app can integrate PulseGuard's risk scoring in a single API call.</div>
+    <div class="hero-tag">API Reference · OKX.AI Agent Service</div>
+    <div class="hero-title">Risk Vitals API</div>
+    <div class="hero-desc">Free, open, no auth required. Any AI agent, trading bot, or app — including agents on OKX.AI — can integrate PulseGuard Oracle's risk scoring in a single API call.</div>
   </div>
 
   <div class="base-url">
@@ -134,7 +134,7 @@
   <!-- Overview -->
   <div class="section">
     <div class="section-title">Why Use This API</div>
-    <div class="section-desc">PulseGuard turns live market data into a structured risk signal, so your agent or app doesn't have to build its own risk engine from scratch.</div>
+    <div class="section-desc">PulseGuard Oracle turns live market data into a structured risk signal, so your agent or app doesn't have to build its own risk engine from scratch.</div>
     <div class="features">
       <div class="feature"><div class="feature-icon">🔓</div><div class="feature-title">No Auth</div><div class="feature-desc">Zero API keys, zero signup. Call any endpoint directly.</div></div>
       <div class="feature"><div class="feature-icon">⚡</div><div class="feature-title">Batch Support</div><div class="feature-desc">Score up to 10 tokens in a single request.</div></div>
@@ -225,7 +225,7 @@
 &nbsp;&nbsp;<span class="json-key">"change_24h"</span>: <span class="json-num">2.18</span>,<br>
 &nbsp;&nbsp;<span class="json-key">"risk_score"</span>: <span class="json-num">43</span>,<br>
 &nbsp;&nbsp;<span class="json-key">"risk_level"</span>: <span class="json-str">"Medium"</span>,<br>
-&nbsp;&nbsp;<span class="json-key">"risk_color"</span>: <span class="json-str">"#f5c542"</span>,<br>
+&nbsp;&nbsp;<span class="json-key">"risk_color"</span>: <span class="json-str">"#ffb020"</span>,<br>
 &nbsp;&nbsp;<span class="json-key">"breakdown"</span>: {<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"volatility"</span>: <span class="json-num">4</span>,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"liquidity"</span>: <span class="json-num">20</span>,<br>
@@ -396,8 +396,8 @@ Content-Type: application/json<br><br>
   <hr class="divider">
 
   <div class="footer">
-    Built by <a href="https://x.com/0xSketchify" target="_blank">@0xSketchify</a> · Sketchify Labs<br>
-    Bitget AI Hackathon - Trading Infrastructure Track · June 2026<br><br>
+    Built by Sketchify<br>
+    OKX.AI Genesis Hackathon · Build X Series · July 2026<br><br>
     <a href="/">← Back to Dashboard</a>
   </div>
 
@@ -429,11 +429,11 @@ function pgSyntaxHighlight(json) {
   var str = JSON.stringify(json, null, 2);
   return str
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"([^"]+)":/g, '<span style="color:#a78bfa">"$1"</span>:')
-    .replace(/: "([^"]*)"/g, ': <span style="color:#22d87a">"$1"</span>')
-    .replace(/: (-?\d+\.?\d*)/g, ': <span style="color:#f5c542">$1</span>')
-    .replace(/: (true|false)/g, ': <span style="color:#ff4f6a">$1</span>')
-    .replace(/: (null)/g, ': <span style="color:#7b7b9d">$1</span>');
+    .replace(/"([^"]+)":/g, '<span style="color:#7dffb0">"$1"</span>:')
+    .replace(/: "([^"]*)"/g, ': <span style="color:#39ff88">"$1"</span>')
+    .replace(/: (-?\d+\.?\d*)/g, ': <span style="color:#ffb020">$1</span>')
+    .replace(/: (true|false)/g, ': <span style="color:#ff3b5c">$1</span>')
+    .replace(/: (null)/g, ': <span style="color:#5f8a75">$1</span>');
 }
 
 function pgShowResponse(ok, statusText, data, ms) {
@@ -441,8 +441,8 @@ function pgShowResponse(ok, statusText, data, ms) {
   el.innerHTML =
     '<div class="pg-status">' +
       '<div class="pg-status-dot ' + (ok ? 'ok' : 'err') + '"></div>' +
-      '<span style="color:' + (ok ? '#22d87a' : '#ff4f6a') + ';font-weight:600">' + statusText + '</span>' +
-      '<span style="color:#7b7b9d;margin-left:auto">' + ms + 'ms</span>' +
+      '<span style="color:' + (ok ? '#39ff88' : '#ff3b5c') + ';font-weight:600">' + statusText + '</span>' +
+      '<span style="color:#5f8a75;margin-left:auto">' + ms + 'ms</span>' +
     '</div>' +
     pgSyntaxHighlight(data);
   el.classList.add('show');
@@ -460,7 +460,7 @@ async function pgSend() {
     var data = await res.json();
     pgShowResponse(res.ok, res.status + ' ' + (res.ok ? 'OK' : 'Error'), data, Date.now() - start);
   } catch(e) {
-    el.innerHTML = '<div class="pg-loading" style="color:#ff4f6a">⚠️ ' + e.message + '</div>';
+    el.innerHTML = '<div class="pg-loading" style="color:#ff3b5c">⚠️ ' + e.message + '</div>';
   }
 }
 
@@ -480,7 +480,7 @@ async function pgSendPost() {
     var data = await res.json();
     pgShowResponse(res.ok, res.status + ' ' + (res.ok ? 'OK' : 'Error'), data, Date.now() - start);
   } catch(e) {
-    el.innerHTML = '<div class="pg-loading" style="color:#ff4f6a">⚠️ ' + (e.message.includes('JSON') ? 'Invalid JSON body' : e.message) + '</div>';
+    el.innerHTML = '<div class="pg-loading" style="color:#ff3b5c">⚠️ ' + (e.message.includes('JSON') ? 'Invalid JSON body' : e.message) + '</div>';
   }
 }
 
