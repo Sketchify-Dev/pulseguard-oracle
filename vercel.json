@@ -1,0 +1,6 @@
+{
+  "functions": {
+    "api/metadata.js": { "maxDuration": 10 },
+    "api/risk-score.js": { "maxDuration": 10 }
+  }
+}
