@@ -1,7 +1,9 @@
 {
-  "name": "pulseguard",
+  "name": "pulseguard-oracle-a2mcp",
   "version": "1.0.0",
-  "description": "Real-time Risk Intelligence API for Crypto Trading. Built for the Bitget AI Hackathon (Trading Infrastructure track).",
+  "description": "PulseGuard Oracle — crypto risk-scoring A2MCP service for OKX.AI Genesis Hackathon",
   "type": "module",
-  "license": "MIT"
+  "scripts": {
+    "test:logic": "node test/scoring.test.js"
+  }
 }
